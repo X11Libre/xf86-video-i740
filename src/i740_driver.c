@@ -25,7 +25,7 @@ TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 **************************************************************************/
-/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/i740/i740_driver.c,v 1.50 2003/11/03 05:11:16 tsi Exp $ */
+/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/i740/i740_driver.c,v 1.49tsi Exp $ */
 
 /*
  * Authors:
@@ -286,7 +286,7 @@ static XF86ModuleVersionInfo i740VersRec =
   MODULEVENDORSTRING,
   MODINFOSTRING1,
   MODINFOSTRING2,
-  XF86_VERSION_CURRENT,
+  XORG_VERSION_CURRENT,
   I740_MAJOR_VERSION, I740_MINOR_VERSION, I740_PATCHLEVEL,
   ABI_CLASS_VIDEODRV,
   ABI_VIDEODRV_VERSION,

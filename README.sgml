@@ -1,4 +1,4 @@
-<!DOCTYPE linuxdoc PUBLIC "-//XFree86//DTD linuxdoc//EN" [
+<!DOCTYPE linuxdoc PUBLIC "-//Xorg//DTD linuxdoc//EN" [
 <!ENTITY % defs SYSTEM "defs.ent"> %defs;
 ]>
 
@@ -7,7 +7,6 @@
 <author>Precision Insight, Inc.
 <date>18 February 1999
 <ident>
-$XFree86: xc/programs/Xserver/hw/xfree86/doc/sgml/i740.sgml,v 1.3 2000/03/04 00:26:30 dawes Exp $
 </ident>
 <toc>
 
@@ -90,14 +89,14 @@ $XFree86: xc/programs/Xserver/hw/xfree86/doc/sgml/i740.sgml,v 1.3 2000/03/04 00:
 <p>
 The driver auto-detects all device information necessary to
 initialize the card.  The only lines you need in the "Device"
-section of your XF86Config file are:
+section of your xorg.conf file are:
 <verb>
        Section "Device"
            Identifier "Intel i740"
            Driver     "i740"
        EndSection
 </verb>
-or let <tt>xf86config</tt> do this for you.
+or let <tt>xorgconfig</tt> do this for you.
 
 However, if you have problems with auto-detection, you can specify:
 <itemize>
@@ -141,7 +140,9 @@ if it is incorrectly detected.
    <item>Daryll Strauss <email>daryll@precisioninsight.com</email>
 </itemize>
 
-This driver was donated to The XFree86 Project by:
+The X11R&relvers; version of this driver originally came from XFree86 4.4 rc2.
+
+The XFree86 version of this driver was donated to The XFree86 Project by:
 <verb>
     Precision Insight, Inc.
     Cedar Park, TX
