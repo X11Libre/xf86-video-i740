@@ -25,7 +25,7 @@ TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 **************************************************************************/
-/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/i740/i740_driver.c,v 1.47 2003/08/23 16:09:17 dawes Exp $ */
+/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/i740/i740_driver.c,v 1.49tsi Exp $ */
 
 /*
  * Authors:
@@ -75,23 +75,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include "micmap.h"
 
-#define USE_FB
-
-#ifdef USE_FB
 #include "fb.h"
-#else
-/* Drivers using cfb need: */
-
-#define PSZ 8
-#include "cfb.h"
-#undef PSZ
-
-/* Drivers supporting bpp 16, 24 or 32 with cfb need one or more of: */
-
-#include "cfb16.h"
-#include "cfb24.h"
-#include "cfb32.h"
-#endif
 
 /* The driver's own header file: */
 
@@ -137,8 +121,8 @@ static Bool I740SaveScreen(ScreenPtr pScreen, int mode);
 static void I740FreeScreen(int scrnIndex, int flags);
 
 /* Check if a mode is valid on the hardware */
-static int I740ValidMode(int scrnIndex, DisplayModePtr mode, Bool
-		       verbose, int flags);
+static ModeStatus I740ValidMode(int scrnIndex, DisplayModePtr mode,
+				Bool verbose, int flags);
 
 /* Switch to various Display Power Management System levels */
 static void I740DisplayPowerManagementSet(ScrnInfoPtr pScrn, 
@@ -222,17 +206,8 @@ static const char *vgahwSymbols[] = {
 
 #ifdef XFree86LOADER
 static const char *fbSymbols[] = {
-#ifdef USE_FB
     "fbScreenInit",
     "fbPictureInit",
-#else
-    "cfbScreenInit",
-    "cfb16ScreenInit",
-    "cfb24ScreenInit",
-    "cfb32ScreenInit",
-#endif
-    "cfb8_32ScreenInit",
-    "cfb24_32ScreenInit",
     NULL
 };
 #endif
@@ -241,10 +216,6 @@ static const char *xaaSymbols[] = {
     "XAADestroyInfoRec",
     "XAACreateInfoRec",
     "XAAInit",
-    "XAAStippleScanlineFuncLSBFirst",
-    "XAAOverlayFBfuncs",
-    "XAACachePlanarMonoStipple",
-    "XAAScreenIndex",
     NULL
 };
 
@@ -290,7 +261,7 @@ static XF86ModuleVersionInfo i740VersRec =
   MODULEVENDORSTRING,
   MODINFOSTRING1,
   MODINFOSTRING2,
-  XF86_VERSION_CURRENT,
+  XORG_VERSION_CURRENT,
   I740_MAJOR_VERSION, I740_MINOR_VERSION, I740_PATCHLEVEL,
   ABI_CLASS_VIDEODRV,
   ABI_VIDEODRV_VERSION,
@@ -497,15 +468,11 @@ I740ProbeDDC(ScrnInfoPtr pScrn, int index)
  */
 static Bool
 I740PreInit(ScrnInfoPtr pScrn, int flags) {
-  vgaHWPtr hwp;
   I740Ptr pI740;
   ClockRangePtr clockRanges;
   int i;
   MessageType from;
   int temp;
-#ifndef USE_FB
-  char *mod=0, *reqSym=0;
-#endif
   int flags24;
   rgb defaultWeight = {0, 0, 0};
 
@@ -587,7 +554,6 @@ I740PreInit(ScrnInfoPtr pScrn, int flags) {
   /* We use a programamble clock */
   pScrn->progClock = TRUE;
 
-  hwp = VGAHWPTR(pScrn);
   pI740->cpp = pScrn->bitsPerPixel/8;
 
   /* Process the options */
@@ -799,37 +765,11 @@ I740PreInit(ScrnInfoPtr pScrn, int flags) {
 
   xf86SetDpi(pScrn, 0, 0);
 
-#ifdef USE_FB
   if (!xf86LoadSubModule(pScrn, "fb")) {
     I740FreeRec(pScrn);
     return FALSE;
   }
   xf86LoaderReqSymbols("fbScreenInit","fbPictureInit", NULL);
-#else
-  switch (pScrn->bitsPerPixel) {
-  case 8:
-    mod = "cfb";
-    reqSym = "cfbScreenInit";
-    break;
-  case 16:
-    mod = "cfb16";
-    reqSym = "cfb16ScreenInit";
-    break;
-  case 24:
-    mod = "cfb24";
-    reqSym = "cfb24ScreenInit";
-    break;
-  case 32:
-    mod = "cfb32";
-    reqSym = "cfb32ScreenInit";
-    break;
-  }
-  if (mod && !xf86LoadSubModule(pScrn, mod)) {
-    I740FreeRec(pScrn);
-    return FALSE;
-  }
-  xf86LoaderReqSymbols(reqSym, NULL);
-#endif
 
   if (!xf86ReturnOptValBool(pI740->Options, OPTION_NOACCEL, FALSE)) {
     if (!xf86LoadSubModule(pScrn, "xaa")) {
@@ -1495,12 +1435,10 @@ I740ModeInit(ScrnInfoPtr pScrn, DisplayModePtr mode_src)
 
 static void I740LoadPalette15(ScrnInfoPtr pScrn, int numColors, int *indices, LOCO *colors, VisualPtr pVisual)
 {
-  I740Ptr pI740;
   vgaHWPtr hwp;
   int i, index;
   unsigned char r, g, b;
 
-  pI740 = I740PTR(pScrn);
   hwp = VGAHWPTR(pScrn);
 
   for (i=0; i<numColors; i++)
@@ -1525,12 +1463,10 @@ static void I740LoadPalette15(ScrnInfoPtr pScrn, int numColors, int *indices, LO
 
 static void I740LoadPalette16(ScrnInfoPtr pScrn, int numColors, int *indices, LOCO *colors, VisualPtr pVisual)
 {
-  I740Ptr pI740;
   vgaHWPtr hwp;
   int i, index;
   unsigned char r, g, b;
 
-  pI740 = I740PTR(pScrn);
   hwp = VGAHWPTR(pScrn);
   for (i=0; i<numColors; i++) {
     index=indices[i/2];
@@ -1555,12 +1491,10 @@ static void I740LoadPalette16(ScrnInfoPtr pScrn, int numColors, int *indices, LO
 static void
 I740LoadPalette24(ScrnInfoPtr pScrn, int numColors, int *indices, LOCO *colors,
 		  VisualPtr pVisual) {
-  I740Ptr pI740;
   vgaHWPtr hwp;
   int i, index;
   unsigned char r, g, b;
 
-  pI740 = I740PTR(pScrn);
   hwp = VGAHWPTR(pScrn);
   for (i=0; i<numColors; i++) {
     index=indices[i];
@@ -1606,12 +1540,9 @@ I740ScreenInit(int scrnIndex, ScreenPtr pScreen, int argc, char **argv) {
   if (!miSetVisualTypes(pScrn->depth, miGetDefaultVisualMask(pScrn->depth),
 			pScrn->rgbBits, pScrn->defaultVisual))
     return FALSE;
-#ifdef USE_FB
 	if (!miSetPixmapDepths ()) return FALSE;
-#endif
 
   switch (pScrn->bitsPerPixel) {
-#ifdef USE_FB
   case 8:
   case 16:
   case 24:
@@ -1622,45 +1553,13 @@ I740ScreenInit(int scrnIndex, ScreenPtr pScreen, int argc, char **argv) {
 		       pScrn->displayWidth,pScrn->bitsPerPixel))
       return FALSE;
     break;
-#else
-  case 8:
-    if (!cfbScreenInit(pScreen, pI740->FbBase, 
-		       pScrn->virtualX, pScrn->virtualY,
-		       pScrn->xDpi, pScrn->yDpi,
-		       pScrn->displayWidth))
-      return FALSE;
-    break;
-  case 16:
-    if (!cfb16ScreenInit(pScreen, pI740->FbBase, 
-			 pScrn->virtualX, pScrn->virtualY,
-			 pScrn->xDpi, pScrn->yDpi,
-			 pScrn->displayWidth))
-      return FALSE;
-    break;
-  case 24:
-    if (!cfb24ScreenInit(pScreen, pI740->FbBase, 
-			 pScrn->virtualX, pScrn->virtualY,
-			 pScrn->xDpi, pScrn->yDpi,
-			 pScrn->displayWidth))
-      return FALSE;
-    break;
-  case 32:
-    if (!cfb32ScreenInit(pScreen, pI740->FbBase, 
-			 pScrn->virtualX, pScrn->virtualY,
-			 pScrn->xDpi, pScrn->yDpi,
-			 pScrn->displayWidth))
-      return FALSE;
-    break;
-#endif
   default:
     xf86DrvMsg(scrnIndex, X_ERROR,
 	       "Internal error: invalid bpp (%d) in I740ScrnInit\n",
 	       pScrn->bitsPerPixel);
     return FALSE;
   }
-#ifdef USE_FB
   fbPictureInit(pScreen,0,0);
-#endif
 
   xf86SetBlackWhitePixels(pScreen);
 
@@ -1758,12 +1657,10 @@ I740SwitchMode(int scrnIndex, DisplayModePtr mode, int flags) {
 void
 I740AdjustFrame(int scrnIndex, int x, int y, int flags) {
   ScrnInfoPtr pScrn;
-  I740Ptr pI740;
   int Base;
   vgaHWPtr hwp;
 
   pScrn = xf86Screens[scrnIndex];
-  pI740 = I740PTR(pScrn);
   hwp = VGAHWPTR(pScrn);
 
   Base = (y * pScrn->displayWidth + x) >> 2;
@@ -1851,7 +1748,7 @@ I740FreeScreen(int scrnIndex, int flags) {
     vgaHWFreeHWRec(xf86Screens[scrnIndex]);
 }
 
-static int
+static ModeStatus
 I740ValidMode(int scrnIndex, DisplayModePtr mode, Bool verbose, int flags) {
   if (mode->Flags & V_INTERLACE) {
     if (verbose) {
