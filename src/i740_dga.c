@@ -21,7 +21,7 @@
  *
  * Authors:  Patrick LERDA
  */
-/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/i740/i740_dga.c,v 1.2 2003/02/12 21:46:42 tsi Exp $ */
+/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/i740/i740_dga.c,v 1.1tsi Exp $ */
 
 
 #include "xf86.h"
