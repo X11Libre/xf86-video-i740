@@ -44,7 +44,7 @@
  *   12 September 2002 - Better software scaling with some averaging, giving a
  *     nicer picture.
  */
-/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/i740/i740_video.c,v 1.4 2003/04/23 21:51:37 tsi Exp $ */
+/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/i740/i740_video.c,v 1.5tsi Exp $ */
 
 
 /*
@@ -62,7 +62,7 @@
 #include "regionstr.h"
 
 #include "xf86xv.h"
-#include "Xv.h"
+#include <X11/extensions/Xv.h>
 #include "xaa.h"
 #include "xaalocal.h"
 #include "dixstruct.h"
@@ -588,11 +588,11 @@ static FBLinearPtr I740AllocateMemory(ScrnInfoPtr pScrn, FBLinearPtr linear, int
 	return linear;
 
       if(xf86ResizeOffscreenLinear(linear, size)) {
-        xf86DrvMsg(pScrn->scrnIndex, X_CONFIG, "I740AllocateMemory resized to %d - %p\n", (int) size, linear);  /* ### */
+        xf86DrvMsg(pScrn->scrnIndex, X_CONFIG, "I740AllocateMemory resized to %d - %p\n", (int) size, (void *)linear);  /* ### */
 	return linear;
       }
 
-      xf86DrvMsg(pScrn->scrnIndex, X_CONFIG, "I740AllocateMemory free %p - %d < %d\n", linear, (int) linear->size, (int) size);  /* ### */
+      xf86DrvMsg(pScrn->scrnIndex, X_CONFIG, "I740AllocateMemory free %p - %d < %d\n", (void *)linear, (int) linear->size, (int) size);  /* ### */
       xf86FreeOffscreenLinear(linear);
     }
 
@@ -616,7 +616,7 @@ static FBLinearPtr I740AllocateMemory(ScrnInfoPtr pScrn, FBLinearPtr linear, int
       new_linear = xf86AllocateOffscreenLinear(pScreen, size, 4, 
 					       NULL, NULL, NULL);
     } 
-  xf86DrvMsg(pScrn->scrnIndex, X_CONFIG, "I740AllocateMemory allocated %d - %p\n", (int) size, new_linear);  /* ### */
+  xf86DrvMsg(pScrn->scrnIndex, X_CONFIG, "I740AllocateMemory allocated %d - %p\n", (int) size, (void *)new_linear);  /* ### */
 
   return new_linear;
 }
@@ -629,6 +629,7 @@ static int I740PutImage(ScrnInfoPtr pScrn,
 			Bool sync, RegionPtr clipBoxes, pointer data
 			)
 {
+  ScreenPtr pScreen = pScrn->pScreen;
   I740Ptr pI740 = I740PTR(pScrn);
   I740PortPrivPtr pPriv = (I740PortPrivPtr)data;
   INT32 x1, x2, y1, y2;
@@ -758,11 +759,11 @@ static int I740PutImage(ScrnInfoPtr pScrn,
   }
 
   /* update cliplist */
-  if(!REGION_EQUAL(pScrn->pScreen, &pPriv->clip, clipBoxes))
+  if(!REGION_EQUAL(pScreen, &pPriv->clip, clipBoxes))
     {
-      REGION_COPY(pScrn->pScreen, &pPriv->clip, clipBoxes);
+      REGION_COPY(pScreen, &pPriv->clip, clipBoxes);
       /* draw these */
-      xf86XVFillKeyHelper(pScrn->pScreen, pPriv->colorKey, clipBoxes);
+      xf86XVFillKeyHelper(pScreen, pPriv->colorKey, clipBoxes);
     }
 
   {
@@ -1216,7 +1217,7 @@ static XF86VideoAdaptorPtr I740SetupImageVideo(ScreenPtr pScreen)
   pPriv->currentBuf  = 0;
 
   /* gotta uninit this someplace */
-  REGION_INIT(pScreen, &pPriv->clip, NullBox, 0); 
+  REGION_NULL(pScreen, &pPriv->clip);
 
   pI740->adaptor = adapt;
 
