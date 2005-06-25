@@ -141,7 +141,7 @@ static Bool I740UnmapMem(ScrnInfoPtr pScrn);
 #define I740_MINOR_VERSION 0
 #define I740_PATCHLEVEL 0
 
-DriverRec I740 = {
+_X_EXPORT DriverRec I740 = {
   VERSION,
   I740_DRIVER_NAME,
   I740Identify,
@@ -269,7 +269,7 @@ static XF86ModuleVersionInfo i740VersRec =
   {0,0,0,0}
 };
 
-XF86ModuleData i740ModuleData = {&i740VersRec, i740Setup, 0};
+_X_EXPORT XF86ModuleData i740ModuleData = {&i740VersRec, i740Setup, 0};
 
 static pointer
 i740Setup(pointer module, pointer opts, int *errmaj, int *errmin)
