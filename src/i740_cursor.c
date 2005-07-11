@@ -25,13 +25,17 @@ TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 **************************************************************************/
-/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/i740/i740_cursor.c,v 1.5 2002/10/21 13:32:58 alanh Exp $ */
+/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/i740/i740_cursor.c,v 1.4 2000/02/23 04:47:13 martin Exp $ */
 
 /*
  * Authors:
  *   Daryll Strauss <daryll@precisioninsight.com>
  *
  */
+
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 
 #include "xf86.h"
 #include "xf86_OSproc.h"

@@ -33,6 +33,10 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *
  */
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 /*
  * This server does not support these XFree86 4.0 features yet
  * DDC1 & DDC2 (requires I2C)

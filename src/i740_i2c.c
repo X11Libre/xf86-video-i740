@@ -21,7 +21,11 @@
  *
  * Authors:  Patrick LERDA
  */
-/* $XFree86: xc/programs/Xserver/hw/xfree86/drivers/i740/i740_i2c.c,v 1.1 2002/10/21 13:32:58 alanh Exp $ */
+/* $XFree86$ */
+
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif
 
 /* not working at this time */
 
