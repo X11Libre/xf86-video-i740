@@ -36,6 +36,8 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #ifndef _I740_H_
 #define _I740_H_
 
+#include "i740_pcirename.h"
+
 #include "xf86PciInfo.h"
 #include "xf86Pci.h"
 
@@ -99,7 +101,9 @@ typedef struct _I740Rec {
   unsigned long MMIOAddr;
   EntityInfoPtr pEnt;
   pciVideoPtr PciInfo;
+#ifndef XSERVER_LIBPCIACCESS
   PCITAG PciTag;
+#endif
   int HasSGRAM;
   I740RegRec SavedReg;
   I740RegRec ModeReg;

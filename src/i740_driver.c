@@ -508,8 +508,10 @@ I740PreInit(ScrnInfoPtr pScrn, int flags) {
   if (!vgaHWGetHWRec(pScrn)) return FALSE;
 
   pI740->PciInfo = xf86GetPciInfoForEntity(pI740->pEnt->index);
+#ifndef XSERVER_LIBPCIACCESS
   pI740->PciTag = pciTag(pI740->PciInfo->bus, pI740->PciInfo->device,
 			 pI740->PciInfo->func);
+#endif
 
   if (xf86RegisterResources(pI740->pEnt->index, 0, ResNone))
       return FALSE;
@@ -598,7 +600,7 @@ I740PreInit(ScrnInfoPtr pScrn, int flags) {
 	       pI740->pEnt->device->chipID);
   } else {
     from = X_PROBED;
-    pScrn->chipset = (char *)xf86TokenToString(I740Chipsets, pI740->PciInfo->chipType);
+    pScrn->chipset = (char *)xf86TokenToString(I740Chipsets, PCI_DEV_DEVIE_ID(pI740->PciInfo));
   }
   if (pI740->pEnt->device->chipRev >= 0) {
     xf86DrvMsg(pScrn->scrnIndex, X_CONFIG, "ChipRev override: %d\n",
@@ -611,8 +613,8 @@ I740PreInit(ScrnInfoPtr pScrn, int flags) {
     pI740->LinearAddr = pI740->pEnt->device->MemBase;
     from = X_CONFIG;
   } else {
-    if (pI740->PciInfo->memBase[1] != 0) {
-      pI740->LinearAddr = pI740->PciInfo->memBase[0]&0xFF000000;
+    if (PCI_REGION_BASE(pI740->PciInfo, 0, REGION_MEM) != 0) {
+      pI740->LinearAddr = PCI_REGION_BASE(pI740->PciInfo, 0, REGION_MEM)&0xFF000000;
       from = X_PROBED;
     } else {
       xf86DrvMsg(pScrn->scrnIndex, X_ERROR, 
@@ -628,8 +630,8 @@ I740PreInit(ScrnInfoPtr pScrn, int flags) {
     pI740->MMIOAddr = pI740->pEnt->device->IOBase;
     from = X_CONFIG;
   } else {
-    if (pI740->PciInfo->memBase[1]) {
-      pI740->MMIOAddr = pI740->PciInfo->memBase[1]&0xFFF80000;
+    if (PCI_REGION_BASE(pI740->PciInfo, 1, REGION_MEM)) {
+      pI740->MMIOAddr = PCI_REGION_BASE(pI740->PciInfo, 1, REGION_MEM)&0xFFF80000;
       from = X_PROBED;
     } else {
       xf86DrvMsg(pScrn->scrnIndex, X_ERROR,
@@ -871,18 +873,48 @@ static Bool I740MapMem(ScrnInfoPtr pScrn)
 
   pI740 = I740PTR(pScrn);
 
+#ifndef XSERVER_LIBPCIACCESS
   mmioFlags = VIDMEM_MMIO | VIDMEM_READSIDEEFFECT;
 
   pI740->MMIOBase = xf86MapPciMem(pScrn->scrnIndex, mmioFlags, 
 				      pI740->PciTag, 
 				      pI740->MMIOAddr,
 				      0x80000);
+#else
+  {
+    void** result = (void**)&pI740->MMIOBase;
+    int err = pci_device_map_range(pI740->PciInfo,
+				   pI740->MMIOAddr,
+				   0x80000,
+				   PCI_DEV_MAP_FLAG_WRITABLE,
+				   result);
+    
+    if (err) 
+      return FALSE;
+  }
+
+#endif
   if (!pI740->MMIOBase) return FALSE;
 
+#ifndef XSERVER_LIBPCIACCESS
   pI740->FbBase = xf86MapPciMem(pScrn->scrnIndex, VIDMEM_FRAMEBUFFER,
 				pI740->PciTag,
 				pI740->LinearAddr,
 				pI740->FbMapSize);
+#else
+  {
+    void** result = (void**)&pI740->FbBase;
+    int err = pci_device_map_range(pI740->PciInfo,
+				   pI740->LinearAddr,
+				   pI740->FbMapSize,
+				   PCI_DEV_MAP_FLAG_WRITABLE |
+				   PCI_DEV_MAP_FLAG_WRITE_COMBINE,
+				   result);
+    
+    if (err) 
+      return FALSE;
+  }
+#endif
   if (!pI740->FbBase) return FALSE;
 
   return TRUE;
@@ -894,10 +926,18 @@ static Bool I740UnmapMem(ScrnInfoPtr pScrn)
 
   pI740 = I740PTR(pScrn);
 
+#ifndef XSERVER_LIBPCIACCESS
   xf86UnMapVidMem(pScrn->scrnIndex, (pointer)pI740->MMIOBase, 0x80000);
+#else
+  pci_device_unmap_range(pI740->PciInfo, pI740->MMIOBase, 0x80000);
+#endif
   pI740->MMIOBase=0;
 
+#ifndef XSERVER_LIBPCIACCESS
   xf86UnMapVidMem(pScrn->scrnIndex, (pointer)pI740->FbBase, pI740->FbMapSize);
+#else
+  pci_device_unmap_range(pI740->PciInfo, pI740->FbBase, pI740->FbMapSize);
+#endif
   pI740->FbBase = 0;
   return TRUE;
 }
