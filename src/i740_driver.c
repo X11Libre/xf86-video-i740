@@ -378,11 +378,13 @@ I740Probe(DriverPtr drv, int flags) {
     return FALSE;
   }
 
+#ifndef XSERVER_LIBPCIACCESS
   /* 
      Since these Probing is just checking the PCI data the server already
      collected.
   */
   if (!xf86GetPciVideoInfo()) return FALSE;
+#endif
  
   /* Look for Intel based chips */
   numUsed = xf86MatchPciInstances(I740_NAME, PCI_VENDOR_INTEL,
@@ -600,7 +602,7 @@ I740PreInit(ScrnInfoPtr pScrn, int flags) {
 	       pI740->pEnt->device->chipID);
   } else {
     from = X_PROBED;
-    pScrn->chipset = (char *)xf86TokenToString(I740Chipsets, PCI_DEV_DEVIE_ID(pI740->PciInfo));
+    pScrn->chipset = (char *)xf86TokenToString(I740Chipsets, PCI_DEV_DEVICE_ID(pI740->PciInfo));
   }
   if (pI740->pEnt->device->chipRev >= 0) {
     xf86DrvMsg(pScrn->scrnIndex, X_CONFIG, "ChipRev override: %d\n",
