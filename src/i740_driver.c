@@ -52,8 +52,6 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 #include "xf86.h"
 #include "xf86_OSproc.h"
-#include "xf86Resources.h"
-#include "xf86RAC.h"
 #include "xf86cmap.h"
 
 /* If the driver uses port I/O directly, it needs: */
@@ -434,16 +432,8 @@ I740PreInit(ScrnInfoPtr pScrn, int flags) {
 			 pI740->PciInfo->func);
 #endif
 
-  if (xf86RegisterResources(pI740->pEnt->index, 0, ResNone))
-      return FALSE;
-  if (pI740->usePIO)
-    pScrn->racIoFlags = RAC_FB | RAC_COLORMAP;
-  else
-    pScrn->racMemFlags = RAC_FB | RAC_COLORMAP;
-
   /* Set pScrn->monitor */
   pScrn->monitor = pScrn->confScreen->monitor;
-
 
   flags24=Support24bppFb | Support32bppFb | SupportConvert32to24;
   if (!xf86SetDepthBpp(pScrn, 0, 0, 0, flags24)) {
@@ -740,18 +730,8 @@ I740PreInit(ScrnInfoPtr pScrn, int flags) {
 
   /*  We wont be using the VGA access after the probe */
   if (!xf86ReturnOptValBool(pI740->Options, OPTION_USE_PIO, FALSE)) {
-    resRange vgaio[] = { {ResShrIoBlock,0x3B0,0x3BB},
-			 {ResShrIoBlock,0x3C0,0x3DF},
-			 _END };
-    resRange vgamem[] = {{ResShrMemBlock,0xA0000,0xAFFFF},
-			 {ResShrMemBlock,0xB8000,0xBFFFF},
-			 {ResShrMemBlock,0xB0000,0xB7FFF},
-			 _END };
-
     pI740->usePIO=FALSE;
     I740SetMMIOAccess(pI740);
-    xf86SetOperatingState(vgaio, pI740->pEnt->index, ResUnusedOpr);
-    xf86SetOperatingState(vgamem, pI740->pEnt->index, ResDisableOpr);
   } else {
     pI740->usePIO=TRUE;
   }
