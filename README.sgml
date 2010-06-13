@@ -1,13 +1,11 @@
 <!DOCTYPE linuxdoc PUBLIC "-//Xorg//DTD linuxdoc//EN" [
-<!ENTITY % defs SYSTEM "defs.ent"> %defs;
+<!ENTITY % defs SYSTEM "X11/defs.ent"> %defs;
 ]>
 
 <article>
 <title>Information for i740 Users
 <author>Precision Insight, Inc.
 <date>18 February 1999
-<ident>
-</ident>
 <toc>
 
 <sect>Supported Hardware
@@ -135,8 +133,8 @@ if it is incorrectly detected.
 <p>
 <itemize>
    <item>Original version by Kevin E Martin
-	<email>kevin@precisioninsight.com</email>
-   <item>Daryll Strauss <email>daryll@precisioninsight.com</email>
+	<url url="mailto:kevin@precisioninsight.com">
+   <item>Daryll Strauss <url url="mailto:daryll@precisioninsight.com">
 </itemize>
 
 The Xorg version of this driver originally came from XFree86 4.4 rc2.
