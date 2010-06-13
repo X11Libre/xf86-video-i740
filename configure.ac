@@ -86,8 +86,6 @@ AC_SUBST([moduledir])
 DRIVER_NAME=i740
 AC_SUBST([DRIVER_NAME])
 
-XORG_CHECK_LINUXDOC
-
 AC_OUTPUT([
 	Makefile
 	src/Makefile
