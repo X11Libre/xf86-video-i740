@@ -22,9 +22,9 @@
 
 AC_PREREQ([2.60])
 AC_INIT([xf86-video-i740],
-        1.3.2,
+        [1.3.2],
         [https://bugs.freedesktop.org/enter_bug.cgi?product=xorg],
-        xf86-video-i740)
+        [xf86-video-i740])
 
 AC_CONFIG_SRCDIR([Makefile.am])
 AM_CONFIG_HEADER([config.h])
