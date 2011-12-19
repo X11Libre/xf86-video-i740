@@ -429,6 +429,7 @@ I740PreInit(ScrnInfoPtr pScrn, int flags) {
 
   /* Allocate a vgaHWRec */
   if (!vgaHWGetHWRec(pScrn)) return FALSE;
+  vgaHWSetStdFuncs(VGAHWPTR(pScrn));
 
   pI740->PciInfo = xf86GetPciInfoForEntity(pI740->pEnt->index);
 #ifndef XSERVER_LIBPCIACCESS
