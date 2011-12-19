@@ -725,10 +725,11 @@ I740PreInit(ScrnInfoPtr pScrn, int flags) {
     return FALSE;
   }
 
-  if (!xf86ReturnOptValBool(pI740->Options, OPTION_NOACCEL, FALSE)) {
+  pI740->NoAccel = xf86ReturnOptValBool(pI740->Options, OPTION_NOACCEL, FALSE);
+  if (!pI740->NoAccel) {
     if (!xf86LoadSubModule(pScrn, "xaa")) {
-      I740FreeRec(pScrn);
-      return FALSE;
+      xf86DrvMsg(pScrn->scrnIndex, X_WARNING, "No acceleration available\n");
+      pI740->NoAccel = 1;
     }
   }
 
@@ -1535,7 +1536,7 @@ I740ScreenInit(int scrnIndex, ScreenPtr pScreen, int argc, char **argv) {
     return FALSE;
   }
 
-  if (!xf86ReturnOptValBool(pI740->Options, OPTION_NOACCEL, FALSE)) {
+  if (!pI740->NoAccel) {
     if (!I740AccelInit(pScreen)) {
       xf86DrvMsg(pScrn->scrnIndex, X_ERROR,
 		 "Hardware acceleration initialization failed\n");
