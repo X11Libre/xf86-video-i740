@@ -55,6 +55,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "xf86.h"
 #include "xf86_OSproc.h"

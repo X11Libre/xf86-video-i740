@@ -38,6 +38,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include <string.h>
 #include <math.h>
+#include <unistd.h>
 
 /*
  * This server does not support these XFree86 4.0 features yet
