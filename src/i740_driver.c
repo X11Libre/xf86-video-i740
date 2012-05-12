@@ -256,8 +256,7 @@ I740GetRec(ScrnInfoPtr pScrn) {
 static void
 I740FreeRec(ScrnInfoPtr pScrn) {
   if (!pScrn) return;
-  if (!pScrn->driverPrivate) return;
-  xfree(pScrn->driverPrivate);
+  free(pScrn->driverPrivate);
   pScrn->driverPrivate=0;
 }
 
@@ -371,8 +370,8 @@ I740Probe(DriverPtr drv, int flags) {
       }
   }
   
-  xfree(devSections);
-  xfree(usedChips);
+  free(devSections);
+  free(usedChips);
   
   return foundScreen;
 }
@@ -488,7 +487,7 @@ I740PreInit(ScrnInfoPtr pScrn, int flags) {
 
   /* Process the options */
   xf86CollectOptions(pScrn, NULL);
-  if (!(pI740->Options = xalloc(sizeof(I740Options))))
+  if (!(pI740->Options = malloc(sizeof(I740Options))))
     return FALSE;
   memcpy(pI740->Options, I740Options, sizeof(I740Options));
   xf86ProcessOptions(pScrn->scrnIndex, pScrn->options, pI740->Options);
