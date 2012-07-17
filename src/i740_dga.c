@@ -30,11 +30,12 @@
 #include "xf86_OSproc.h"
 #include "xf86Pci.h"
 #include "xf86PciInfo.h"
-#include "xaa.h"
-#include "xaalocal.h"
 #include "vgaHW.h"
 #include "xf86xv.h"
 #include "i740.h"
+#ifdef HAVE_XAA_H
+#include "xaalocal.h"
+#endif
 #include "dgaproc.h"
 #include "i740_dga.h"
 
@@ -43,12 +44,13 @@ static Bool I740_SetMode(ScrnInfoPtr, DGAModePtr);
 static void I740_Sync(ScrnInfoPtr);
 static int  I740_GetViewport(ScrnInfoPtr);
 static void I740_SetViewport(ScrnInfoPtr, int, int, int);
+#ifdef HAVE_XAA_H
 static void I740_FillRect(ScrnInfoPtr, int, int, int, int, unsigned long);
 static void I740_BlitRect(ScrnInfoPtr, int, int, int, int, int, int);
 #if 0
 static void I740_BlitTransRect(ScrnInfoPtr, int, int, int, int, int, int, unsigned long);
 #endif
-
+#endif
 static DGAFunctionRec I740DGAFuncs = {
    I740_OpenFramebuffer,
    NULL,
@@ -56,12 +58,16 @@ static DGAFunctionRec I740DGAFuncs = {
    I740_SetViewport,
    I740_GetViewport,
    I740_Sync,
+#ifdef HAVE_XAA_H
    I740_FillRect,
    I740_BlitRect,
 #if 0
    I740_BlitTransRect
 #else
    NULL
+#endif
+#else
+   NULL, NULL, NULL
 #endif
 };
 
@@ -91,8 +97,10 @@ Bool I740DGAInit(ScreenPtr pScreen)
 
     currentMode->mode = pMode;
     currentMode->flags = DGA_CONCURRENT_ACCESS | DGA_PIXMAP_AVAILABLE;
+#ifdef HAVE_XAA_H
     if(pI740->AccelInfoRec)
       currentMode->flags |= DGA_FILL_RECT | DGA_BLIT_RECT;
+#endif
     if(pMode->Flags & V_DBLSCAN)
       currentMode->flags |= DGA_DOUBLESCAN;
     if(pMode->Flags & V_INTERLACE)
@@ -182,6 +190,7 @@ static void I740_SetViewport(ScrnInfoPtr pScrn, int x, int y, int flags)
   pI740->DGAViewportStatus = 0; 
 }
 
+#ifdef HAVE_XAA_H
 static void I740_FillRect(ScrnInfoPtr pScrn, int x, int y, int w, int h, unsigned long color)
 {
   I740Ptr pI740 = I740PTR(pScrn);
@@ -219,7 +228,7 @@ static void I740_BlitRect(
     SET_SYNC_FLAG(pI740->AccelInfoRec);
   }
 }
-
+#endif
 #if 0
 static void I740_BlitTransRect(ScrnInfoPtr pScrn, 
 			       int srcx, int srcy, 

@@ -1690,9 +1690,11 @@ I740CloseScreen(int scrnIndex, ScreenPtr pScreen)
   
   I740UnmapMem(pScrn);
   vgaHWUnmapMem(pScrn);
+#ifdef HAVE_XAA_H
   if (pI740->AccelInfoRec)
     XAADestroyInfoRec(pI740->AccelInfoRec);
   pI740->AccelInfoRec=0;
+#endif
   if (pI740->CursorInfoRec)
     xf86DestroyCursorInfoRec(pI740->CursorInfoRec);
   pI740->CursorInfoRec=0;

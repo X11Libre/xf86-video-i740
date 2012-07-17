@@ -43,7 +43,9 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "i740_reg.h"
 #include "i740_macros.h"
 
+#ifdef HAVE_XAA_H
 #include "xaa.h"
+#endif
 #include "xf86Cursor.h"
 
 /* Globals */
@@ -106,7 +108,9 @@ typedef struct _I740Rec {
   int HasSGRAM;
   I740RegRec SavedReg;
   I740RegRec ModeReg;
+#ifdef HAVE_XAA_H
   XAAInfoRecPtr AccelInfoRec;
+#endif
   xf86CursorInfoPtr CursorInfoRec;
   FBAreaPtr CursorData;
   CloseScreenProcPtr CloseScreen;
