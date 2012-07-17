@@ -598,7 +598,7 @@ static FBLinearPtr I740AllocateMemory(ScrnInfoPtr pScrn, FBLinearPtr linear, int
       xf86FreeOffscreenLinear(linear);
     }
 
-  pScreen = screenInfo.screens[pScrn->scrnIndex];
+  pScreen = xf86ScrnToScreen(pScrn);
 
   new_linear = xf86AllocateOffscreenLinear(pScreen, size, 4, NULL, NULL, NULL);
 
@@ -1122,7 +1122,7 @@ static void I740InitOffscreenImages(ScreenPtr pScreen)
 {
   XF86OffscreenImagePtr offscreenImages;
   {
-    ScrnInfoPtr pScrn = xf86Screens[pScreen->myNum];
+    ScrnInfoPtr pScrn = xf86ScreenToScrn(pScreen);
     xf86DrvMsg(pScrn->scrnIndex, X_CONFIG, "I740InitOffscreenImages entered\n");  /* ### */
   }
 
@@ -1169,7 +1169,7 @@ static XF86VideoAdaptorPtr I740SetupImageVideo(ScreenPtr pScreen)
     {15, TrueColor}, {16, TrueColor}, {24, TrueColor},  {8, PseudoColor}
   };
 
-  ScrnInfoPtr pScrn = xf86Screens[pScreen->myNum];
+  ScrnInfoPtr pScrn = xf86ScreenToScrn(pScreen);
   I740Ptr pI740 = I740PTR(pScrn);
   XF86VideoAdaptorPtr adapt;
   I740PortPrivPtr pPriv;
@@ -1238,7 +1238,7 @@ static XF86VideoAdaptorPtr I740SetupImageVideo(ScreenPtr pScreen)
 
 void I740InitVideo(ScreenPtr pScreen)
 {
-  ScrnInfoPtr pScrn = xf86Screens[pScreen->myNum];
+  ScrnInfoPtr pScrn = xf86ScreenToScrn(pScreen);
   XF86VideoAdaptorPtr newAdaptor = NULL;
   xf86DrvMsg(pScrn->scrnIndex, X_CONFIG, "I740InitVideo entered\n");  /* ### */
 

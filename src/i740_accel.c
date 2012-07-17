@@ -125,7 +125,7 @@ Bool
 I740AccelInit(ScreenPtr pScreen) {
 #ifdef HAVE_XAA_H
   XAAInfoRecPtr infoPtr;
-  ScrnInfoPtr pScrn = xf86Screens[pScreen->myNum];
+  ScrnInfoPtr pScrn = xf86ScreenToScrn(pScreen);
   I740Ptr pI740 = I740PTR(pScrn);
 
   pI740->AccelInfoRec = infoPtr = XAACreateInfoRec();

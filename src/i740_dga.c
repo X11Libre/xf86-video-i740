@@ -73,7 +73,7 @@ static DGAFunctionRec I740DGAFuncs = {
 
 Bool I740DGAInit(ScreenPtr pScreen)
 {   
-  ScrnInfoPtr pScrn = xf86Screens[pScreen->myNum];
+  ScrnInfoPtr pScrn = xf86ScreenToScrn(pScreen);
   I740Ptr pI740 = I740PTR(pScrn);
   DGAModePtr modes = NULL, newmodes = NULL, currentMode;
   DisplayModePtr pMode, firstMode;
