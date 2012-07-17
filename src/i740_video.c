@@ -828,10 +828,10 @@ static int I740QueryImageAttributes(ScrnInfoPtr pScrn, int id, unsigned short *w
   return size;
 }
 
-static void I740BlockHandler(int i, pointer blockData, pointer pTimeout, pointer pReadmask)
+static void I740BlockHandler(BLOCKHANDLER_ARGS_DECL)
 {
-  ScreenPtr   pScreen = screenInfo.screens[i];
-  ScrnInfoPtr pScrn = xf86Screens[i];
+  SCREEN_PTR(arg);
+  ScrnInfoPtr pScrn = xf86ScreenToScrn(pScreen);
   I740Ptr      pI740 = I740PTR(pScrn);
   I740PortPrivPtr pPriv = GET_PORT_PRIVATE(pScrn);
 
@@ -839,7 +839,7 @@ static void I740BlockHandler(int i, pointer blockData, pointer pTimeout, pointer
 
   pScreen->BlockHandler = pI740->BlockHandler;
     
-  (*pScreen->BlockHandler) (i, blockData, pTimeout, pReadmask);
+  (*pScreen->BlockHandler) (BLOCKHANDLER_ARGS);
 
   pScreen->BlockHandler = I740BlockHandler;
 

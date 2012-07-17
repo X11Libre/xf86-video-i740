@@ -48,6 +48,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #endif
 #include "xf86Cursor.h"
 
+#include "compat-api.h"
 /* Globals */
 /* Memory mapped register access macros */
 #define INREG8(addr)        *(volatile CARD8  *)(pI740->MMIOBase + (addr))
@@ -155,8 +156,8 @@ void I740SetPIOAccess(I740Ptr pI740);
 void I740SetMMIOAccess(I740Ptr pI740);
 void I740InitVideo(ScreenPtr pScreen);
 
-Bool I740SwitchMode(int scrnIndex, DisplayModePtr mode, int flags);
-void I740AdjustFrame(int scrnIndex, int x, int y, int flags);
+Bool I740SwitchMode(SWITCH_MODE_ARGS_DECL);
+void I740AdjustFrame(ADJUST_FRAME_ARGS_DECL);
 
 Bool I740_I2CInit(ScrnInfoPtr pScrn);
 

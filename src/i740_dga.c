@@ -153,8 +153,8 @@ static Bool I740_SetMode(ScrnInfoPtr pScrn, DGAModePtr pMode)
   if(!pMode) { /* restore the original mode */
     if(pI740->DGAactive) {
       pScrn->currentMode = I740SavedDGAModes[index];
-      I740SwitchMode(index, pScrn->currentMode, 0);
-      I740AdjustFrame(index, 0, 0, 0);
+      I740SwitchMode(SWITCH_MODE_ARGS(pScrn, pScrn->currentMode));
+      I740AdjustFrame(ADJUST_FRAME_ARGS(pScrn, 0, 0));
       pI740->DGAactive = FALSE;
     }
   } else {
@@ -163,7 +163,7 @@ static Bool I740_SetMode(ScrnInfoPtr pScrn, DGAModePtr pMode)
       pI740->DGAactive = TRUE;
     }
 
-    I740SwitchMode(index, pMode->mode, 0);
+    I740SwitchMode(SWITCH_MODE_ARGS(pScrn, pMode->mode));
   }
    
   return TRUE;
@@ -181,7 +181,7 @@ static void I740_SetViewport(ScrnInfoPtr pScrn, int x, int y, int flags)
   I740Ptr pI740 = I740PTR(pScrn);
   vgaHWPtr hwp = VGAHWPTR(pScrn);
 
-  I740AdjustFrame(pScrn->pScreen->myNum, x, y, flags);
+  I740AdjustFrame(ADJUST_FRAME_ARGS(pScrn, x, y));
 
   /* wait for retrace */
   while((hwp->readST01(hwp) & 0x08));
