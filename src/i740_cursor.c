@@ -132,14 +132,11 @@ I740UseHWCursor(ScreenPtr pScreen, CursorPtr pCurs)
 static void
 I740LoadCursorImage(ScrnInfoPtr pScrn, unsigned char *src)
 {
-    I740Ptr pI740;
-    int x, y;
-    CARD8 *pcurs;
+    I740Ptr pI740 = I740PTR(pScrn);
+    CARD8 *pcurs = (CARD8 *) (pI740->FbBase + pI740->CursorStart);
 
-    pI740 = I740PTR(pScrn);
-    pcurs = (CARD8 *) (pI740->FbBase + pI740->CursorStart);
-    for (y = 0; y < 64; y++) {
-        for (x = 0; x < 64 / 4; x++) {
+    for (int y = 0; y < 64; y++) {
+        for (int x = 0; x < 64 / 4; x++) {
             *pcurs++ = *src++;
         }
     }

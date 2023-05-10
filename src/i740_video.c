@@ -522,7 +522,6 @@ I740CopyMungedData(ScrnInfoPtr pScrn,
     I740Ptr pI740 = I740PTR(pScrn);
     I740PortPrivPtr pPriv = pI740->adaptor->pPortPrivates[0].ptr;
     CARD32 *dst;
-    int i, j;
 
     if (pPriv->currentBuf == 0)
         dst = (CARD32 *) (pI740->FbBase + pPriv->YBuf0offset);
@@ -539,7 +538,7 @@ I740CopyMungedData(ScrnInfoPtr pScrn,
         long halfx = scalex / 2;
         long dstj = 0;
 
-        for (j = 0; j < dsth; j++) {
+        for (int j = 0; j < dsth; j++) {
             int dstj_rnd = dstj >> 16;
             unsigned char *src1_ = src1 + (dstj_rnd * srcPitch);
             unsigned char *src2_ = src2 + ((dstj_rnd / 2) * srcPitch2);
@@ -547,7 +546,7 @@ I740CopyMungedData(ScrnInfoPtr pScrn,
             int dstw = ((long) w * 0x10000L + halfx - 1) / scalex;
             long srci = 0;
 
-            for (i = 0; i < dstw; i++) {
+            for (int i = 0; i < dstw; i++) {
                 long srci_rnd = srci >> 16;
                 long srci2_rnd = (srci + halfx) >> 16;
 
@@ -567,8 +566,8 @@ I740CopyMungedData(ScrnInfoPtr pScrn,
         }
     }
     else {
-        for (j = 0; j < h; j++) {
-            for (i = 0; i < w; i++) {
+        for (int j = 0; j < h; j++) {
+            for (int i = 0; i < w; i++) {
                 dst[i] = src1[i << 1] | (src1[(i << 1) + 1] << 16) |
                     (src3[i] << 8) | (src2[i] << 24);
             }

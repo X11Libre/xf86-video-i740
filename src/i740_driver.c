@@ -289,7 +289,7 @@ I740Identify(int flags)
 static Bool
 I740Probe(DriverPtr drv, int flags)
 {
-    int i, numUsed, numDevSections, *usedChips;
+    int numUsed, numDevSections, *usedChips;
     GDevPtr *devSections;
     Bool foundScreen = FALSE;
 
@@ -321,7 +321,7 @@ I740Probe(DriverPtr drv, int flags)
         if (flags & PROBE_DETECT)
             foundScreen = TRUE;
         else {
-            for (i = 0; i < numUsed; i++) {
+            for (int i = 0; i < numUsed; i++) {
                 ScrnInfoPtr pScrn = NULL;
 
                 /* Allocate new ScrnInfoRec and claim the slot */
@@ -357,7 +357,7 @@ I740Probe(DriverPtr drv, int flags)
         if (flags & PROBE_DETECT)
             foundScreen = TRUE;
         else {
-            for (i = 0; i < numUsed; i++) {
+            for (int i = 0; i < numUsed; i++) {
                 ScrnInfoPtr pScrn = NULL;
 
                 if ((pScrn = xf86ConfigPciEntity(pScrn, 0, usedChips[i],
@@ -1512,17 +1512,13 @@ static void
 I740LoadPalette15(ScrnInfoPtr pScrn, int numColors, int *indices, LOCO *colors,
                   VisualPtr pVisual)
 {
-    vgaHWPtr hwp;
-    int i, index;
-    unsigned char r, g, b;
+    vgaHWPtr hwp = VGAHWPTR(pScrn);
 
-    hwp = VGAHWPTR(pScrn);
-
-    for (i = 0; i < numColors; i++) {
-        index = indices[i / 2];
-        r = colors[index].red;
-        b = colors[index].blue;
-        g = colors[index].green;
+    for (int i = 0; i < numColors; i++) {
+        int index = indices[i / 2];
+        unsigned char r = colors[index].red;
+        unsigned char b = colors[index].blue;
+        unsigned char g = colors[index].green;
 
         hwp->writeDacWriteAddr(hwp, index << 2);
         hwp->writeDacData(hwp, r);
@@ -1541,12 +1537,12 @@ static void
 I740LoadPalette16(ScrnInfoPtr pScrn, int numColors, int *indices, LOCO *colors,
                   VisualPtr pVisual)
 {
-    vgaHWPtr hwp;
-    int i, index;
-    unsigned char r, g, b;
+    vgaHWPtr hwp = VGAHWPTR(pScrn);
 
-    hwp = VGAHWPTR(pScrn);
-    for (i = 0; i < numColors; i++) {
+    for (int i = 0; i < numColors; i++) {
+        int index;
+        unsigned char r, g, b;
+
         index = indices[i / 2];
         r = colors[index].red;
         b = colors[index].blue;
@@ -1570,12 +1566,12 @@ static void
 I740LoadPalette24(ScrnInfoPtr pScrn, int numColors, int *indices, LOCO *colors,
                   VisualPtr pVisual)
 {
-    vgaHWPtr hwp;
-    int i, index;
-    unsigned char r, g, b;
+    vgaHWPtr hwp = VGAHWPTR(pScrn);
 
-    hwp = VGAHWPTR(pScrn);
-    for (i = 0; i < numColors; i++) {
+    for (int i = 0; i < numColors; i++) {
+        int index;
+        unsigned char r, g, b;
+
         index = indices[i];
         r = colors[index].red;
         b = colors[index].blue;

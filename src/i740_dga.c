@@ -79,7 +79,7 @@ I740DGAInit(ScreenPtr pScreen)
 {
     ScrnInfoPtr pScrn = xf86ScreenToScrn(pScreen);
     I740Ptr pI740 = I740PTR(pScrn);
-    DGAModePtr modes = NULL, newmodes = NULL, currentMode;
+    DGAModePtr modes = NULL, currentMode;
     DisplayModePtr pMode, firstMode;
     int Bpp = pScrn->bitsPerPixel >> 3;
     int num = 0;
@@ -88,7 +88,7 @@ I740DGAInit(ScreenPtr pScreen)
 
     while (pMode) {
 
-        newmodes = realloc(modes, (num + 1) * sizeof(DGAModeRec));
+        DGAModePtr newmodes = realloc(modes, (num + 1) * sizeof(DGAModeRec));
 
         if (!newmodes) {
             free(modes);
