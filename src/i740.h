@@ -1,4 +1,3 @@
-
 /**************************************************************************
 
 Copyright 1998-1999 Precision Insight, Inc., Cedar Park, Texas.
@@ -64,92 +63,92 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 typedef struct _I740Rec *I740Ptr;
 
-typedef void (*I740WriteIndexedByteFunc)(I740Ptr pI740, int addr, 
-					 unsigned char index, char value);
-typedef char (*I740ReadIndexedByteFunc)(I740Ptr pI740, int addr, 
-					unsigned char index);
+typedef void (*I740WriteIndexedByteFunc)(I740Ptr pI740, int addr,
+                                         unsigned char index, char value);
+typedef char (*I740ReadIndexedByteFunc)(I740Ptr pI740, int addr,
+                                        unsigned char index);
 typedef void (*I740WriteByteFunc)(I740Ptr pI740, int addr, unsigned char value);
 typedef char (*I740ReadByteFunc)(I740Ptr pI740, int addr);
 
 typedef struct {
-  unsigned char DisplayControl;
-  unsigned char PixelPipeCfg0;
-  unsigned char PixelPipeCfg1;
-  unsigned char PixelPipeCfg2;
-  unsigned char VideoClk2_M;
-  unsigned char VideoClk2_N;
-  unsigned char VideoClk2_MN_MSBs;
-  unsigned char VideoClk2_DivisorSel;
-  unsigned char PLLControl;
-  unsigned char AddressMapping;
-  unsigned char IOControl;
-  unsigned char BitBLTControl;
-  unsigned char ExtVertTotal;
-  unsigned char ExtVertDispEnd;
-  unsigned char ExtVertSyncStart;
-  unsigned char ExtVertBlankStart;
-  unsigned char ExtHorizTotal;
-  unsigned char ExtHorizBlank;
-  unsigned char ExtOffset;
-  unsigned char InterlaceControl;
-  unsigned int  LMI_FIFO_Watermark;
+    unsigned char DisplayControl;
+    unsigned char PixelPipeCfg0;
+    unsigned char PixelPipeCfg1;
+    unsigned char PixelPipeCfg2;
+    unsigned char VideoClk2_M;
+    unsigned char VideoClk2_N;
+    unsigned char VideoClk2_MN_MSBs;
+    unsigned char VideoClk2_DivisorSel;
+    unsigned char PLLControl;
+    unsigned char AddressMapping;
+    unsigned char IOControl;
+    unsigned char BitBLTControl;
+    unsigned char ExtVertTotal;
+    unsigned char ExtVertDispEnd;
+    unsigned char ExtVertSyncStart;
+    unsigned char ExtVertBlankStart;
+    unsigned char ExtHorizTotal;
+    unsigned char ExtHorizBlank;
+    unsigned char ExtOffset;
+    unsigned char InterlaceControl;
+    unsigned int LMI_FIFO_Watermark;
 } I740RegRec, *I740RegPtr;
 
 typedef struct _I740Rec {
-  unsigned char *MMIOBase;
-  unsigned char *FbBase;
-  long FbMapSize;
-  int cpp;
-  int MaxClock;
-  int CursorStart;
-  int Chipset;
-  unsigned long LinearAddr;
-  unsigned long MMIOAddr;
-  EntityInfoPtr pEnt;
-  pciVideoPtr PciInfo;
+    unsigned char *MMIOBase;
+    unsigned char *FbBase;
+    long FbMapSize;
+    int cpp;
+    int MaxClock;
+    int CursorStart;
+    int Chipset;
+    unsigned long LinearAddr;
+    unsigned long MMIOAddr;
+    EntityInfoPtr pEnt;
+    pciVideoPtr PciInfo;
 #ifndef XSERVER_LIBPCIACCESS
-  PCITAG PciTag;
+    PCITAG PciTag;
 #endif
-  int HasSGRAM;
-  I740RegRec SavedReg;
-  I740RegRec ModeReg;
+    int HasSGRAM;
+    I740RegRec SavedReg;
+    I740RegRec ModeReg;
 #ifdef HAVE_XAA_H
-  XAAInfoRecPtr AccelInfoRec;
+    XAAInfoRecPtr AccelInfoRec;
 #endif
-  xf86CursorInfoPtr CursorInfoRec;
-  FBAreaPtr CursorData;
-  CloseScreenProcPtr CloseScreen;
-  GFX2DOPREG_BLTER_FULL_LOAD bltcmd;
-  Bool usePIO;
-  I740WriteIndexedByteFunc writeControl;
-  I740ReadIndexedByteFunc readControl;
-  I740WriteByteFunc writeStandard;
-  I740ReadByteFunc readStandard;
-  OptionInfoPtr Options;
+    xf86CursorInfoPtr CursorInfoRec;
+    FBAreaPtr CursorData;
+    CloseScreenProcPtr CloseScreen;
+    GFX2DOPREG_BLTER_FULL_LOAD bltcmd;
+    Bool usePIO;
+    I740WriteIndexedByteFunc writeControl;
+    I740ReadIndexedByteFunc readControl;
+    I740WriteByteFunc writeStandard;
+    I740ReadByteFunc readStandard;
+    OptionInfoPtr Options;
 
-  /*DGA*/
-  DGAModePtr DGAModes;
-  int numDGAModes;
-  Bool DGAactive;
-  int DGAViewportStatus;
-  BoxRec FbMemBox;
-  /*-*/
+    /*DGA*/
+    DGAModePtr DGAModes;
+    int numDGAModes;
+    Bool DGAactive;
+    int DGAViewportStatus;
+    BoxRec FbMemBox;
+    /*-*/
 
-  /*I2C*/
-  I2CBusPtr             rc_i2c;
-  /*-*/
+    /*I2C */
+    I2CBusPtr rc_i2c;
+    /*-*/
 
-  /*-*/ /*Overlay*/
-  XF86VideoAdaptorPtr adaptor;
-  unsigned long OverlayStart;
-  unsigned long OverlayPhysical;
-  int colorKey;
-  ScreenBlockHandlerProcPtr BlockHandler;
-  int ov_offset_x,ov_offset_y;
-  /*-*/
+    /*Overlay */
+    XF86VideoAdaptorPtr adaptor;
+    unsigned long OverlayStart;
+    unsigned long OverlayPhysical;
+    int colorKey;
+    ScreenBlockHandlerProcPtr BlockHandler;
+    int ov_offset_x, ov_offset_y;
+    /*-*/
 
-  Bool usevgacompat;
-  Bool NoAccel;
+    Bool usevgacompat;
+    Bool NoAccel;
 } I740Rec;
 
 #define I740PTR(p) ((I740Ptr)((p)->driverPrivate))

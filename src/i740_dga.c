@@ -38,221 +38,227 @@
 #include "dgaproc.h"
 #include "i740_dga.h"
 
-static Bool I740_OpenFramebuffer(ScrnInfoPtr, char **, unsigned char **, int *, int *, int *);
+static Bool I740_OpenFramebuffer(ScrnInfoPtr, char **, unsigned char **, int *,
+                                 int *, int *);
 static Bool I740_SetMode(ScrnInfoPtr, DGAModePtr);
 static int  I740_GetViewport(ScrnInfoPtr);
 static void I740_SetViewport(ScrnInfoPtr, int, int, int);
+
 #ifdef HAVE_XAA_H
 static void I740_Sync(ScrnInfoPtr);
 static void I740_FillRect(ScrnInfoPtr, int, int, int, int, unsigned long);
 static void I740_BlitRect(ScrnInfoPtr, int, int, int, int, int, int);
+
 #if 0
-static void I740_BlitTransRect(ScrnInfoPtr, int, int, int, int, int, int, unsigned long);
+static void I740_BlitTransRect(ScrnInfoPtr, int, int, int, int, int, int,
+                               unsigned long);
 #endif
 #endif
 static DGAFunctionRec I740DGAFuncs = {
-   I740_OpenFramebuffer,
-   NULL,
-   I740_SetMode,
-   I740_SetViewport,
-   I740_GetViewport,
+    I740_OpenFramebuffer,
+    NULL,
+    I740_SetMode,
+    I740_SetViewport,
+    I740_GetViewport,
 #ifdef HAVE_XAA_H
-   I740_Sync,
-   I740_FillRect,
-   I740_BlitRect,
+    I740_Sync,
+    I740_FillRect,
+    I740_BlitRect,
 #if 0
-   I740_BlitTransRect
+    I740_BlitTransRect
 #else
-   NULL
+    NULL
 #endif
 #else
-   NULL, NULL, NULL, NULL
+    NULL, NULL, NULL, NULL
 #endif
 };
 
-Bool I740DGAInit(ScreenPtr pScreen)
-{   
-  ScrnInfoPtr pScrn = xf86ScreenToScrn(pScreen);
-  I740Ptr pI740 = I740PTR(pScrn);
-  DGAModePtr modes = NULL, newmodes = NULL, currentMode;
-  DisplayModePtr pMode, firstMode;
-  int Bpp = pScrn->bitsPerPixel >> 3;
-  int num = 0;
+Bool
+I740DGAInit(ScreenPtr pScreen)
+{
+    ScrnInfoPtr pScrn = xf86ScreenToScrn(pScreen);
+    I740Ptr pI740 = I740PTR(pScrn);
+    DGAModePtr modes = NULL, newmodes = NULL, currentMode;
+    DisplayModePtr pMode, firstMode;
+    int Bpp = pScrn->bitsPerPixel >> 3;
+    int num = 0;
 
-  pMode = firstMode = pScrn->modes;
+    pMode = firstMode = pScrn->modes;
 
-  while(pMode) {
+    while (pMode) {
 
-    newmodes = realloc(modes, (num + 1) * sizeof(DGAModeRec));
+        newmodes = realloc(modes, (num + 1) * sizeof(DGAModeRec));
 
-    if(!newmodes) {
-      free(modes);
-      return FALSE;
-    }
-    modes = newmodes;
+        if (!newmodes) {
+            free(modes);
+            return FALSE;
+        }
+        modes = newmodes;
 
-    currentMode = modes + num;
-    num++;
+        currentMode = modes + num;
+        num++;
 
-    currentMode->mode = pMode;
-    currentMode->flags = DGA_CONCURRENT_ACCESS | DGA_PIXMAP_AVAILABLE;
+        currentMode->mode = pMode;
+        currentMode->flags = DGA_CONCURRENT_ACCESS | DGA_PIXMAP_AVAILABLE;
 #ifdef HAVE_XAA_H
-    if(pI740->AccelInfoRec)
-      currentMode->flags |= DGA_FILL_RECT | DGA_BLIT_RECT;
+        if (pI740->AccelInfoRec)
+            currentMode->flags |= DGA_FILL_RECT | DGA_BLIT_RECT;
 #endif
-    if(pMode->Flags & V_DBLSCAN)
-      currentMode->flags |= DGA_DOUBLESCAN;
-    if(pMode->Flags & V_INTERLACE)
-      currentMode->flags |= DGA_INTERLACED;
-    currentMode->byteOrder = pScrn->imageByteOrder;
-    currentMode->depth = pScrn->depth;
-    currentMode->bitsPerPixel = pScrn->bitsPerPixel;
-    currentMode->red_mask = pScrn->mask.red;
-    currentMode->green_mask = pScrn->mask.green;
-    currentMode->blue_mask = pScrn->mask.blue;
-    currentMode->visualClass = (Bpp == 1) ? PseudoColor : TrueColor;
-    currentMode->viewportWidth = pMode->HDisplay;
-    currentMode->viewportHeight = pMode->VDisplay;
-    currentMode->xViewportStep = (Bpp == 3) ? 2 : 1;
-    currentMode->yViewportStep = 1;
-    currentMode->viewportFlags = DGA_FLIP_RETRACE;
-    currentMode->offset = 0;
-    currentMode->address = pI740->FbBase;
+        if (pMode->Flags & V_DBLSCAN)
+            currentMode->flags |= DGA_DOUBLESCAN;
+        if (pMode->Flags & V_INTERLACE)
+            currentMode->flags |= DGA_INTERLACED;
+        currentMode->byteOrder = pScrn->imageByteOrder;
+        currentMode->depth = pScrn->depth;
+        currentMode->bitsPerPixel = pScrn->bitsPerPixel;
+        currentMode->red_mask = pScrn->mask.red;
+        currentMode->green_mask = pScrn->mask.green;
+        currentMode->blue_mask = pScrn->mask.blue;
+        currentMode->visualClass = (Bpp == 1) ? PseudoColor : TrueColor;
+        currentMode->viewportWidth = pMode->HDisplay;
+        currentMode->viewportHeight = pMode->VDisplay;
+        currentMode->xViewportStep = (Bpp == 3) ? 2 : 1;
+        currentMode->yViewportStep = 1;
+        currentMode->viewportFlags = DGA_FLIP_RETRACE;
+        currentMode->offset = 0;
+        currentMode->address = pI740->FbBase;
 
-    currentMode->bytesPerScanline = 
-      ((pScrn->displayWidth * Bpp) + 3) & ~3L;
-    currentMode->imageWidth = pI740->FbMemBox.x2;
-    currentMode->imageHeight =  pI740->FbMemBox.y2;
-    currentMode->pixmapWidth = currentMode->imageWidth;
-    currentMode->pixmapHeight = currentMode->imageHeight;
-    currentMode->maxViewportX = currentMode->imageWidth - 
-      currentMode->viewportWidth;
-    /* this might need to get clamped to some maximum */
-    currentMode->maxViewportY = currentMode->imageHeight -
-      currentMode->viewportHeight;
+        currentMode->bytesPerScanline = ((pScrn->displayWidth * Bpp) + 3) & ~3L;
+        currentMode->imageWidth = pI740->FbMemBox.x2;
+        currentMode->imageHeight = pI740->FbMemBox.y2;
+        currentMode->pixmapWidth = currentMode->imageWidth;
+        currentMode->pixmapHeight = currentMode->imageHeight;
+        currentMode->maxViewportX = currentMode->imageWidth -
+            currentMode->viewportWidth;
+        /* this might need to get clamped to some maximum */
+        currentMode->maxViewportY = currentMode->imageHeight -
+            currentMode->viewportHeight;
 
-    pMode = pMode->next;
-    if(pMode == firstMode)
-      break;
-  }
+        pMode = pMode->next;
+        if (pMode == firstMode)
+            break;
+    }
 
-  pI740->numDGAModes = num;
-  pI740->DGAModes = modes;
+    pI740->numDGAModes = num;
+    pI740->DGAModes = modes;
 
-  return DGAInit(pScreen, &I740DGAFuncs, modes, num);  
+    return DGAInit(pScreen, &I740DGAFuncs, modes, num);
 }
 
 static DisplayModePtr I740SavedDGAModes[MAXSCREENS];
 
-static Bool I740_SetMode(ScrnInfoPtr pScrn, DGAModePtr pMode)
+static Bool
+I740_SetMode(ScrnInfoPtr pScrn, DGAModePtr pMode)
 {
-  int index = pScrn->pScreen->myNum;
-  I740Ptr pI740 = I740PTR(pScrn);
+    int index = pScrn->pScreen->myNum;
+    I740Ptr pI740 = I740PTR(pScrn);
 
-  if(!pMode) { /* restore the original mode */
-    if(pI740->DGAactive) {
-      pScrn->currentMode = I740SavedDGAModes[index];
-      I740SwitchMode(SWITCH_MODE_ARGS(pScrn, pScrn->currentMode));
-      I740AdjustFrame(ADJUST_FRAME_ARGS(pScrn, 0, 0));
-      pI740->DGAactive = FALSE;
+    if (!pMode) {               /* restore the original mode */
+        if (pI740->DGAactive) {
+            pScrn->currentMode = I740SavedDGAModes[index];
+            I740SwitchMode(SWITCH_MODE_ARGS(pScrn, pScrn->currentMode));
+            I740AdjustFrame(ADJUST_FRAME_ARGS(pScrn, 0, 0));
+            pI740->DGAactive = FALSE;
+        }
     }
-  } else {
-    if(!pI740->DGAactive) {
-      I740SavedDGAModes[index] = pScrn->currentMode;
-      pI740->DGAactive = TRUE;
+    else {
+        if (!pI740->DGAactive) {
+            I740SavedDGAModes[index] = pScrn->currentMode;
+            pI740->DGAactive = TRUE;
+        }
+
+        I740SwitchMode(SWITCH_MODE_ARGS(pScrn, pMode->mode));
     }
 
-    I740SwitchMode(SWITCH_MODE_ARGS(pScrn, pMode->mode));
-  }
-   
-  return TRUE;
+    return TRUE;
 }
 
-static int I740_GetViewport(ScrnInfoPtr pScrn)
+static int
+I740_GetViewport(ScrnInfoPtr pScrn)
 {
-  I740Ptr pI740 = I740PTR(pScrn);
+    I740Ptr pI740 = I740PTR(pScrn);
 
-  return pI740->DGAViewportStatus;
+    return pI740->DGAViewportStatus;
 }
 
-static void I740_SetViewport(ScrnInfoPtr pScrn, int x, int y, int flags)
+static void
+I740_SetViewport(ScrnInfoPtr pScrn, int x, int y, int flags)
 {
-  I740Ptr pI740 = I740PTR(pScrn);
-  vgaHWPtr hwp = VGAHWPTR(pScrn);
+    I740Ptr pI740 = I740PTR(pScrn);
+    vgaHWPtr hwp = VGAHWPTR(pScrn);
 
-  I740AdjustFrame(ADJUST_FRAME_ARGS(pScrn, x, y));
+    I740AdjustFrame(ADJUST_FRAME_ARGS(pScrn, x, y));
 
-  /* wait for retrace */
-  while((hwp->readST01(hwp) & 0x08));
-  while(!(hwp->readST01(hwp) & 0x08));
+    /* wait for retrace */
+    while ((hwp->readST01(hwp) & 0x08));
+    while (!(hwp->readST01(hwp) & 0x08));
 
-  pI740->DGAViewportStatus = 0; 
+    pI740->DGAViewportStatus = 0;
 }
 
 #ifdef HAVE_XAA_H
-static void I740_FillRect(ScrnInfoPtr pScrn, int x, int y, int w, int h, unsigned long color)
+static void
+I740_FillRect(ScrnInfoPtr pScrn, int x, int y, int w, int h,
+              unsigned long color)
 {
-  I740Ptr pI740 = I740PTR(pScrn);
+    I740Ptr pI740 = I740PTR(pScrn);
 
-  if(pI740->AccelInfoRec) {
-    (*pI740->AccelInfoRec->SetupForSolidFill)(pScrn, color, GXcopy, ~0);
-    (*pI740->AccelInfoRec->SubsequentSolidFillRect)(pScrn, x, y, w, h);
-    SET_SYNC_FLAG(pI740->AccelInfoRec);
-  }
+    if (pI740->AccelInfoRec) {
+        (*pI740->AccelInfoRec->SetupForSolidFill) (pScrn, color, GXcopy, ~0);
+        (*pI740->AccelInfoRec->SubsequentSolidFillRect) (pScrn, x, y, w, h);
+        SET_SYNC_FLAG(pI740->AccelInfoRec);
+    }
 }
 
-static void I740_Sync(ScrnInfoPtr pScrn)
+static void
+I740_Sync(ScrnInfoPtr pScrn)
 {
-  I740Ptr pI740 = I740PTR(pScrn);
+    I740Ptr pI740 = I740PTR(pScrn);
 
-  if(pI740->AccelInfoRec) {
-    (*pI740->AccelInfoRec->Sync)(pScrn);
-  }
+    if (pI740->AccelInfoRec) {
+        (*pI740->AccelInfoRec->Sync) (pScrn);
+    }
 }
 
-static void I740_BlitRect(
-   ScrnInfoPtr pScrn, 
-   int srcx, int srcy, 
-   int w, int h, 
-   int dstx, int dsty
-   ){
-  I740Ptr pI740 = I740PTR(pScrn);
+static void
+I740_BlitRect(ScrnInfoPtr pScrn,
+              int srcx, int srcy, int w, int h, int dstx, int dsty)
+{
+    I740Ptr pI740 = I740PTR(pScrn);
 
-  if(pI740->AccelInfoRec) {
-    int xdir = ((srcx < dstx) && (srcy == dsty)) ? -1 : 1;
-    int ydir = (srcy < dsty) ? -1 : 1;
+    if (pI740->AccelInfoRec) {
+        int xdir = ((srcx < dstx) && (srcy == dsty)) ? -1 : 1;
+        int ydir = (srcy < dsty) ? -1 : 1;
 
-    (*pI740->AccelInfoRec->SetupForScreenToScreenCopy)(pScrn, xdir, ydir, GXcopy, ~0, -1);
-    (*pI740->AccelInfoRec->SubsequentScreenToScreenCopy)(pScrn, srcx, srcy, dstx, dsty, w, h);
-    SET_SYNC_FLAG(pI740->AccelInfoRec);
-  }
+        (*pI740->AccelInfoRec->SetupForScreenToScreenCopy) (pScrn, xdir, ydir,
+                                                            GXcopy, ~0, -1);
+        (*pI740->AccelInfoRec->SubsequentScreenToScreenCopy) (pScrn, srcx, srcy,
+                                                              dstx, dsty, w, h);
+        SET_SYNC_FLAG(pI740->AccelInfoRec);
+    }
 }
 #endif
 #if 0
-static void I740_BlitTransRect(ScrnInfoPtr pScrn, 
-			       int srcx, int srcy, 
-			       int w, int h, 
-			       int dstx, int dsty,
-			       unsigned long color
-			       )
+static void
+I740_BlitTransRect(ScrnInfoPtr pScrn,
+                   int srcx, int srcy,
+                   int w, int h, int dstx, int dsty, unsigned long color)
 {
-  /* this one should be separate since the XAA function would
-     prohibit usage of ~0 as the key */
+    /* this one should be separate since the XAA function would
+       prohibit usage of ~0 as the key */
 }
 #endif
 
-static Bool I740_OpenFramebuffer(
-				 ScrnInfoPtr pScrn, 
-				 char **name,
-				 unsigned char **mem,
-				 int *size,
-				 int *offset,
-				 int *flags
-				 ){
+static Bool
+I740_OpenFramebuffer(ScrnInfoPtr pScrn,
+                     char **name,
+                     unsigned char **mem, int *size, int *offset, int *flags)
+{
     I740Ptr pI740 = I740PTR(pScrn);
 
-    *name = NULL; 		/* no special device */
-    *mem = (unsigned char*)pI740->LinearAddr;
+    *name = NULL;               /* no special device */
+    *mem = (unsigned char *) pI740->LinearAddr;
     *size = pI740->FbMapSize;
     *offset = 0;
     *flags = DGA_NEED_ROOT;

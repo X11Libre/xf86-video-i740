@@ -39,68 +39,100 @@
 #include "xf86xv.h"
 #include "i740.h"
 
-
-static void i740_I2CPutBits(I2CBusPtr b, int clk,  int dat)
+static void
+i740_I2CPutBits(I2CBusPtr b, int clk, int dat)
 {
-  I740Ptr pI740=I740PTR(xf86Screens[b->scrnIndex]);
-  unsigned char val;
+    I740Ptr pI740 = I740PTR(xf86Screens[b->scrnIndex]);
+    unsigned char val;
 
-  val=pI740->readControl(pI740, XRX, 0x1C);
+    val = pI740->readControl(pI740, XRX, 0x1C);
 
-  if(clk) val&=~0x40; else val|=0x40;  if(dat) val&=~0x08; else val|=0x08;
+    if (clk)
+        val &= ~0x40;
+    else
+        val |= 0x40;
+    if (dat)
+        val &= ~0x08;
+    else
+        val |= 0x08;
 
-  /*if     ( clk &&  dat) val&=0xBF; else if( clk && !dat) val&=0xF7; else if(!clk &&  dat) val|=0x40; else val|=0x08;*/
+    /*if     ( clk &&  dat) val&=0xBF; else if( clk && !dat) val&=0xF7; else if(!clk &&  dat) val|=0x40; else val|=0x08; */
 
-  val|=0x90;
+    val |= 0x90;
 
-  pI740->writeControl(pI740, XRX, 0x1C, val);
-
-  ErrorF("i740_I2CPutBits: clk=%d dat=%d [<1c>=0x%02x] [<63>=0x%02x] clk=%d dat=%d\n", clk, dat,val,pI740->readControl(pI740, XRX, 0x63),
-	 !!(pI740->readControl(pI740, XRX, 0x63) & 0x02), !!(pI740->readControl(pI740, XRX, 0x63) & 0x01) );
-}
-
-static void i740_I2CGetBits(I2CBusPtr b, int *clk, int *dat)
-{
-  I740Ptr pI740=I740PTR(xf86Screens[b->scrnIndex]);
-  unsigned char val;
-
-  {
-    val=pI740->readControl(pI740, XRX, 0x1C);
-    val|=0x90;
     pI740->writeControl(pI740, XRX, 0x1C, val);
-  }
 
-  {
-    val=pI740->readControl(pI740, XRX, 0x63);
-    *clk=!!(val & 0x02);
-    *dat=!!(val & 0x01);
-  }
-
-  ErrorF("i740_I2CGetBits: clk=%d dat=%d [<1c>=0x%02x] [<63>=0x%02x]\n", *clk, *dat,pI740->readControl(pI740, XRX, 0x1c) & 0xff,pI740->readControl(pI740, XRX, 0x63));
+    ErrorF
+        ("i740_I2CPutBits: clk=%d dat=%d [<1c>=0x%02x] [<63>=0x%02x] clk=%d dat=%d\n",
+         clk, dat, val, pI740->readControl(pI740, XRX, 0x63),
+         !!(pI740->readControl(pI740, XRX, 0x63) & 0x02),
+         !!(pI740->readControl(pI740, XRX, 0x63) & 0x01));
 }
 
-Bool I740_I2CInit(ScrnInfoPtr pScrn)
+static void
+i740_I2CGetBits(I2CBusPtr b, int *clk, int *dat)
 {
-  I740Ptr pI740=I740PTR(pScrn);
-  I2CBusPtr I2CPtr;
+    I740Ptr pI740 = I740PTR(xf86Screens[b->scrnIndex]);
+    unsigned char val;
 
-  { unsigned char val; val=pI740->readControl(pI740, XRX, 0x63); val&=0xFC; pI740->writeControl(pI740, XRX, 0x63, val); }
-  { unsigned char val; val=pI740->readControl(pI740, XRX, 0x1C); val|=0x90; pI740->writeControl(pI740, XRX, 0x1C, val); }
-  { unsigned char val; val=pI740->readControl(pI740, XRX, 0x63); val&=0xFC; pI740->writeControl(pI740, XRX, 0x63, val); }
+    {
+        val = pI740->readControl(pI740, XRX, 0x1C);
+        val |= 0x90;
+        pI740->writeControl(pI740, XRX, 0x1C, val);
+    }
 
+    {
+        val = pI740->readControl(pI740, XRX, 0x63);
+        *clk = !!(val & 0x02);
+        *dat = !!(val & 0x01);
+    }
 
-  I2CPtr = xf86CreateI2CBusRec();
-  if(!I2CPtr) return FALSE;
+    ErrorF("i740_I2CGetBits: clk=%d dat=%d [<1c>=0x%02x] [<63>=0x%02x]\n", *clk,
+           *dat, pI740->readControl(pI740, XRX, 0x1c) & 0xff,
+           pI740->readControl(pI740, XRX, 0x63));
+}
 
-  pI740->rc_i2c = I2CPtr;
+Bool
+I740_I2CInit(ScrnInfoPtr pScrn)
+{
+    I740Ptr pI740 = I740PTR(pScrn);
+    I2CBusPtr I2CPtr;
 
-  I2CPtr->BusName    = "I2C bus";
-  I2CPtr->scrnIndex  = pScrn->scrnIndex;
-  I2CPtr->I2CPutBits = i740_I2CPutBits;
-  I2CPtr->I2CGetBits = i740_I2CGetBits;
+    {
+        unsigned char val;
 
-  if (!xf86I2CBusInit(I2CPtr))
-    return FALSE;
+        val = pI740->readControl(pI740, XRX, 0x63);
+        val &= 0xFC;
+        pI740->writeControl(pI740, XRX, 0x63, val);
+    }
+    {
+        unsigned char val;
 
-  return TRUE;
+        val = pI740->readControl(pI740, XRX, 0x1C);
+        val |= 0x90;
+        pI740->writeControl(pI740, XRX, 0x1C, val);
+    }
+    {
+        unsigned char val;
+
+        val = pI740->readControl(pI740, XRX, 0x63);
+        val &= 0xFC;
+        pI740->writeControl(pI740, XRX, 0x63, val);
+    }
+
+    I2CPtr = xf86CreateI2CBusRec();
+    if (!I2CPtr)
+        return FALSE;
+
+    pI740->rc_i2c = I2CPtr;
+
+    I2CPtr->BusName = "I2C bus";
+    I2CPtr->scrnIndex = pScrn->scrnIndex;
+    I2CPtr->I2CPutBits = i740_I2CPutBits;
+    I2CPtr->I2CGetBits = i740_I2CGetBits;
+
+    if (!xf86I2CBusInit(I2CPtr))
+        return FALSE;
+
+    return TRUE;
 }
