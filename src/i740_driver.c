@@ -247,7 +247,7 @@ I740GetRec(ScrnInfoPtr pScrn)
     if (pScrn->driverPrivate)
         return TRUE;
 
-    pScrn->driverPrivate = xnfcalloc(sizeof(I740Rec), 1);
+    pScrn->driverPrivate = XNFcallocarray(sizeof(I740Rec), 1);
     return TRUE;
 }
 
@@ -698,7 +698,7 @@ I740PreInit(ScrnInfoPtr pScrn, int flags)
             pI740->MaxClock = 86000;
         }
     }
-    clockRanges = xnfcalloc(sizeof(ClockRange), 1);
+    clockRanges = XNFcallocarray(sizeof(ClockRange), 1);
     clockRanges->next = NULL;
     clockRanges->minClock = 12000;      /* !!! What's the min clock? !!! */
     clockRanges->maxClock = pI740->MaxClock;
