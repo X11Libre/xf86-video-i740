@@ -30,7 +30,6 @@ i740_drv_ladir = @moduledir@/drivers
 
 i740_drv_la_SOURCES = \
          compat-api.h \
-         i740_accel.c \
          i740_cursor.c \
          i740_dga.c \
          i740_dga.h \

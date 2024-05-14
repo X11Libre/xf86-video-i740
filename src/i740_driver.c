@@ -53,10 +53,6 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 #include "xf86.h"
 #include "xf86_OSproc.h"
-#if GET_ABI_MAJOR(ABI_VIDEODRV_VERSION) < 6
-#include "xf86Resources.h"
-#include "xf86RAC.h"
-#endif
 #include "xf86cmap.h"
 
 /* If the driver uses port I/O directly, it needs: */
@@ -770,11 +766,9 @@ I740PreInit(ScrnInfoPtr pScrn, int flags)
     pI740->NoAccel =
         xf86ReturnOptValBool(pI740->Options, OPTION_NOACCEL, FALSE);
     if (!pI740->NoAccel) {
-        if (!xf86LoadSubModule(pScrn, "xaa")) {
-            xf86DrvMsg(pScrn->scrnIndex, X_WARNING,
-                       "No acceleration available\n");
-            pI740->NoAccel = 1;
-        }
+        xf86DrvMsg(pScrn->scrnIndex, X_WARNING,
+                   "No acceleration available\n");
+        pI740->NoAccel = 1;
     }
 
     if (!xf86ReturnOptValBool(pI740->Options, OPTION_SW_CURSOR, FALSE)) {
@@ -1658,10 +1652,8 @@ I740ScreenInit(SCREEN_INIT_ARGS_DECL)
     }
 
     if (!pI740->NoAccel) {
-        if (!I740AccelInit(pScreen)) {
-            xf86DrvMsg(pScrn->scrnIndex, X_ERROR,
-                       "Hardware acceleration initialization failed\n");
-        }
+        xf86DrvMsg(pScrn->scrnIndex, X_ERROR,
+                   "Hardware acceleration not available\n");
     }
 
     if (pScrn->bitsPerPixel > 8) {
@@ -1813,11 +1805,6 @@ I740CloseScreen(CLOSE_SCREEN_ARGS_DECL)
 
     I740UnmapMem(pScrn);
     vgaHWUnmapMem(pScrn);
-#ifdef HAVE_XAA_H
-    if (pI740->AccelInfoRec)
-        XAADestroyInfoRec(pI740->AccelInfoRec);
-    pI740->AccelInfoRec = 0;
-#endif
     if (pI740->CursorInfoRec)
         xf86DestroyCursorInfoRec(pI740->CursorInfoRec);
     pI740->CursorInfoRec = 0;

@@ -41,9 +41,6 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "i740_reg.h"
 #include "i740_macros.h"
 
-#ifdef HAVE_XAA_H
-#include "xaa.h"
-#endif
 #include "xf86Cursor.h"
 
 #include "compat-api.h"
@@ -112,9 +109,6 @@ typedef struct _I740Rec {
     int HasSGRAM;
     I740RegRec SavedReg;
     I740RegRec ModeReg;
-#ifdef HAVE_XAA_H
-    XAAInfoRecPtr AccelInfoRec;
-#endif
     xf86CursorInfoPtr CursorInfoRec;
     FBAreaPtr CursorData;
     CloseScreenProcPtr CloseScreen;
@@ -154,7 +148,7 @@ typedef struct _I740Rec {
 #define I740PTR(p) ((I740Ptr)((p)->driverPrivate))
 
 extern Bool I740CursorInit(ScreenPtr pScreen);
-extern Bool I740AccelInit(ScreenPtr pScreen);
+
 void I740SetPIOAccess(I740Ptr pI740);
 void I740SetMMIOAccess(I740Ptr pI740);
 void I740InitVideo(ScreenPtr pScreen);
