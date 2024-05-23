@@ -908,7 +908,6 @@ I740QueryImageAttributes(ScrnInfoPtr pScrn, int id, unsigned short *w,
 static void
 I740BlockHandler(BLOCKHANDLER_ARGS_DECL)
 {
-    SCREEN_PTR(arg);
     ScrnInfoPtr pScrn = xf86ScreenToScrn(pScreen);
     I740Ptr pI740 = I740PTR(pScrn);
     I740PortPrivPtr pPriv = GET_PORT_PRIVATE(pScrn);

@@ -153,8 +153,8 @@ void I740SetPIOAccess(I740Ptr pI740);
 void I740SetMMIOAccess(I740Ptr pI740);
 void I740InitVideo(ScreenPtr pScreen);
 
-Bool I740SwitchMode(SWITCH_MODE_ARGS_DECL);
-void I740AdjustFrame(ADJUST_FRAME_ARGS_DECL);
+Bool I740SwitchMode(ScrnInfoPtr pScrn, DisplayModePtr mode);
+void I740AdjustFrame(ScrnInfoPtr pScrn, int x, int y);
 
 Bool I740_I2CInit(ScrnInfoPtr pScrn);
 

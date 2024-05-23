@@ -97,25 +97,25 @@ static Bool I740Probe(DriverPtr drv, int flags);
 static Bool I740PreInit(ScrnInfoPtr pScrn, int flags);
 
 /* Initialize a screen */
-static Bool I740ScreenInit(SCREEN_INIT_ARGS_DECL);
+static Bool I740ScreenInit(ScreenPtr pScreen, int argc, char **argv);
 
 /* Enter from a virtual terminal */
-static Bool I740EnterVT(VT_FUNC_ARGS_DECL);
+static Bool I740EnterVT(ScrnInfoPtr pScrn);
 
 /* Leave to a virtual terminal */
-static void I740LeaveVT(VT_FUNC_ARGS_DECL);
+static void I740LeaveVT(ScrnInfoPtr pScrn);
 
 /* Close down each screen we initialized */
-static Bool I740CloseScreen(CLOSE_SCREEN_ARGS_DECL);
+static Bool I740CloseScreen(ScreenPtr pScreen);
 
 /* Change screensaver state */
 static Bool I740SaveScreen(ScreenPtr pScreen, int mode);
 
 /* Cleanup server private data */
-static void I740FreeScreen(FREE_SCREEN_ARGS_DECL);
+static void I740FreeScreen(ScrnInfoPtr pScrn);
 
 /* Check if a mode is valid on the hardware */
-static ModeStatus I740ValidMode(SCRN_ARG_TYPE arg, DisplayModePtr mode,
+static ModeStatus I740ValidMode(ScrnInfoPtr pScrn, DisplayModePtr mode,
                                 Bool verbose, int flags);
 
 /* Switch to various Display Power Management System levels */
@@ -708,10 +708,7 @@ I740PreInit(ScrnInfoPtr pScrn, int flags)
                 if (I740MapMem(pScrn)) {
                     if (I740_I2CInit(pScrn)) {
                         xf86MonPtr MonInfo;
-
-                        if ((MonInfo =
-                             xf86DoEDID_DDC2(XF86_SCRN_ARG(pScrn),
-                                             pI740->rc_i2c))) {
+                        if ((MonInfo = xf86DoEDID_DDC2(pScrn, pI740->rc_i2c))) {
                             xf86DrvMsg(pScrn->scrnIndex, X_INFO,
                                        "DDC Monitor info: %p\n", MonInfo);
                             xf86PrintEDID(MonInfo);
@@ -1579,7 +1576,7 @@ I740LoadPalette24(ScrnInfoPtr pScrn, int numColors, int *indices, LOCO *colors,
 }
 
 static Bool
-I740ScreenInit(SCREEN_INIT_ARGS_DECL)
+I740ScreenInit(ScreenPtr pScreen, int argc, char **argv)
 {
     ScrnInfoPtr pScrn;
     vgaHWPtr hwp;
@@ -1606,7 +1603,7 @@ I740ScreenInit(SCREEN_INIT_ARGS_DECL)
         return FALSE;
 
     I740SaveScreen(pScreen, SCREEN_SAVER_ON);
-    I740AdjustFrame(ADJUST_FRAME_ARGS(pScrn, pScrn->frameX0, pScrn->frameY0));
+    I740AdjustFrame(pScrn, pScrn->frameX0, pScrn->frameY0);
 
     miClearVisualTypes();
 
@@ -1723,16 +1720,14 @@ I740ScreenInit(SCREEN_INIT_ARGS_DECL)
 }
 
 Bool
-I740SwitchMode(SWITCH_MODE_ARGS_DECL)
+I740SwitchMode(ScrnInfoPtr pScrn, DisplayModePtr mode)
 {
-    SCRN_INFO_PTR(arg);
     return I740ModeInit(pScrn, mode);
 }
 
 void
-I740AdjustFrame(ADJUST_FRAME_ARGS_DECL)
+I740AdjustFrame(ScrnInfoPtr pScrn, int x, int y)
 {
-    SCRN_INFO_PTR(arg);
     int Base;
     vgaHWPtr hwp;
 
@@ -1766,20 +1761,17 @@ I740AdjustFrame(ADJUST_FRAME_ARGS_DECL)
 }
 
 static Bool
-I740EnterVT(VT_FUNC_ARGS_DECL)
+I740EnterVT(ScrnInfoPtr pScrn)
 {
-    SCRN_INFO_PTR(arg);
-
     if (!I740ModeInit(pScrn, pScrn->currentMode))
         return FALSE;
-    I740AdjustFrame(ADJUST_FRAME_ARGS(pScrn, pScrn->frameX0, pScrn->frameY0));
+    I740AdjustFrame(pScrn, pScrn->frameX0, pScrn->frameY0);
     return TRUE;
 }
 
 static void
-I740LeaveVT(VT_FUNC_ARGS_DECL)
+I740LeaveVT(ScrnInfoPtr pScrn)
 {
-    SCRN_INFO_PTR(arg);
     vgaHWPtr hwp;
 
     hwp = VGAHWPTR(pScrn);
@@ -1788,7 +1780,7 @@ I740LeaveVT(VT_FUNC_ARGS_DECL)
 }
 
 static Bool
-I740CloseScreen(CLOSE_SCREEN_ARGS_DECL)
+I740CloseScreen(ScreenPtr pScreen)
 {
     ScrnInfoPtr pScrn;
     vgaHWPtr hwp;
@@ -1811,22 +1803,20 @@ I740CloseScreen(CLOSE_SCREEN_ARGS_DECL)
     pScrn->vtSema = FALSE;
 
     pScreen->CloseScreen = pI740->CloseScreen;
-    return (*pScreen->CloseScreen) (CLOSE_SCREEN_ARGS);
+    return (*pScreen->CloseScreen) (pScreen);
 }
 
 static void
-I740FreeScreen(FREE_SCREEN_ARGS_DECL)
+I740FreeScreen(ScrnInfoPtr pScrn)
 {
-    SCRN_INFO_PTR(arg);
     I740FreeRec(pScrn);
     if (xf86LoaderCheckSymbol("vgaHWFreeHWRec"))
         vgaHWFreeHWRec(pScrn);
 }
 
 static ModeStatus
-I740ValidMode(SCRN_ARG_TYPE arg, DisplayModePtr mode, Bool verbose, int flags)
+I740ValidMode(ScrnInfoPtr pScrn, DisplayModePtr mode, Bool verbose, int flags)
 {
-    SCRN_INFO_PTR(arg);
     if (mode->Flags & V_INTERLACE) {
         if (verbose) {
             xf86DrvMsg(pScrn->scrnIndex, X_PROBED,
