@@ -298,15 +298,6 @@ I740Probe(DriverPtr drv, int flags)
         return FALSE;
     }
 
-#ifndef XSERVER_LIBPCIACCESS
-    /*
-       Since these Probing is just checking the PCI data the server already
-       collected.
-     */
-    if (!xf86GetPciVideoInfo())
-        return FALSE;
-#endif
-
     /* Look for Intel based chips */
     numUsed = xf86MatchPciInstances(I740_NAME, PCI_VENDOR_INTEL,
                                     I740Chipsets, I740PciChipsets,
@@ -444,17 +435,7 @@ I740PreInit(ScrnInfoPtr pScrn, int flags)
     vgaHWSetStdFuncs(VGAHWPTR(pScrn));
 
     pI740->PciInfo = xf86GetPciInfoForEntity(pI740->pEnt->index);
-#ifndef XSERVER_LIBPCIACCESS
-    pI740->PciTag = pciTag(pI740->PciInfo->bus, pI740->PciInfo->device,
-                           pI740->PciInfo->func);
 
-    if (xf86RegisterResources(pI740->pEnt->index, 0, ResNone))
-        return FALSE;
-    if (pI740->usePIO)
-        pScrn->racIoFlags = RAC_FB | RAC_COLORMAP;
-    else
-        pScrn->racMemFlags = RAC_FB | RAC_COLORMAP;
-#endif
     /* Set pScrn->monitor */
     pScrn->monitor = pScrn->confScreen->monitor;
 
@@ -777,25 +758,8 @@ I740PreInit(ScrnInfoPtr pScrn, int flags)
 
     /*  We wont be using the VGA access after the probe */
     if (!xf86ReturnOptValBool(pI740->Options, OPTION_USE_PIO, FALSE)) {
-#ifndef XSERVER_LIBPCIACCESS
-        resRange vgaio[] = {
-            { ResShrIoBlock, 0x3B0, 0x3BB },
-            { ResShrIoBlock, 0x3C0, 0x3DF },
-            _END
-        };
-        resRange vgamem[] = {
-            { ResShrMemBlock, 0xA0000, 0xAFFFF },
-            { ResShrMemBlock, 0xB8000, 0xBFFFF },
-            { ResShrMemBlock, 0xB0000, 0xB7FFF },
-            _END
-        };
-#endif
         pI740->usePIO = FALSE;
         I740SetMMIOAccess(pI740);
-#ifndef XSERVER_LIBPCIACCESS
-        xf86SetOperatingState(vgaio, pI740->pEnt->index, ResUnusedOpr);
-        xf86SetOperatingState(vgamem, pI740->pEnt->index, ResDisableOpr);
-#endif
     }
     else {
         pI740->usePIO = TRUE;
@@ -824,19 +788,10 @@ I740PreInit(ScrnInfoPtr pScrn, int flags)
 static Bool
 I740MapMem(ScrnInfoPtr pScrn)
 {
-#ifndef XSERVER_LIBPCIACCESS
-    int mmioFlags;
-#endif
     I740Ptr pI740;
 
     pI740 = I740PTR(pScrn);
 
-#ifndef XSERVER_LIBPCIACCESS
-    mmioFlags = VIDMEM_MMIO | VIDMEM_READSIDEEFFECT;
-
-    pI740->MMIOBase = xf86MapPciMem(pScrn->scrnIndex, mmioFlags,
-                                    pI740->PciTag, pI740->MMIOAddr, 0x80000);
-#else
     {
         void **result = (void **) &pI740->MMIOBase;
         int err = pci_device_map_range(pI740->PciInfo,
@@ -849,15 +804,9 @@ I740MapMem(ScrnInfoPtr pScrn)
             return FALSE;
     }
 
-#endif
     if (!pI740->MMIOBase)
         return FALSE;
 
-#ifndef XSERVER_LIBPCIACCESS
-    pI740->FbBase = xf86MapPciMem(pScrn->scrnIndex, VIDMEM_FRAMEBUFFER,
-                                  pI740->PciTag,
-                                  pI740->LinearAddr, pI740->FbMapSize);
-#else
     {
         void **result = (void **) &pI740->FbBase;
         int err = pci_device_map_range(pI740->PciInfo,
@@ -870,7 +819,7 @@ I740MapMem(ScrnInfoPtr pScrn)
         if (err)
             return FALSE;
     }
-#endif
+
     if (!pI740->FbBase)
         return FALSE;
 
@@ -884,19 +833,10 @@ I740UnmapMem(ScrnInfoPtr pScrn)
 
     pI740 = I740PTR(pScrn);
 
-#ifndef XSERVER_LIBPCIACCESS
-    xf86UnMapVidMem(pScrn->scrnIndex, (pointer) pI740->MMIOBase, 0x80000);
-#else
     pci_device_unmap_range(pI740->PciInfo, pI740->MMIOBase, 0x80000);
-#endif
     pI740->MMIOBase = 0;
 
-#ifndef XSERVER_LIBPCIACCESS
-    xf86UnMapVidMem(pScrn->scrnIndex, (pointer) pI740->FbBase,
-                    pI740->FbMapSize);
-#else
     pci_device_unmap_range(pI740->PciInfo, pI740->FbBase, pI740->FbMapSize);
-#endif
     pI740->FbBase = 0;
     return TRUE;
 }

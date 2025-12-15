@@ -103,9 +103,6 @@ typedef struct _I740Rec {
     unsigned long MMIOAddr;
     EntityInfoPtr pEnt;
     pciVideoPtr PciInfo;
-#ifndef XSERVER_LIBPCIACCESS
-    PCITAG PciTag;
-#endif
     int HasSGRAM;
     I740RegRec SavedReg;
     I740RegRec ModeReg;
