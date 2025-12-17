@@ -21,10 +21,7 @@
  *
  * Authors:  Patrick LERDA
  */
-
-#ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif
 
 /* not working at this time */
 

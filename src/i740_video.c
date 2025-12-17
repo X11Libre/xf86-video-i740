@@ -48,9 +48,7 @@
 /*
  * i740_video.c: i740 Xv driver. Based on the mga Xv driver by Mark Vojkovich.
  */
-#ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif
 
 #include <stdio.h>
 #include <string.h>

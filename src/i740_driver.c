@@ -31,10 +31,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  *   Daryll Strauss <daryll@precisioninsight.com>
  *
  */
-
-#ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif
 
 #include <string.h>
 #include <math.h>
