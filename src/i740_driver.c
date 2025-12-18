@@ -177,8 +177,6 @@ static const OptionInfoRec I740Options[] = {
     {-1, NULL, OPTV_NONE, {0}, FALSE}
 };
 
-#ifdef XFree86LOADER
-
 static MODULESETUPPROTO(i740Setup);
 
 static XF86ModuleVersionInfo i740VersRec = {
@@ -224,8 +222,6 @@ i740Setup(pointer module, pointer opts, int *errmaj, int *errmin)
         return NULL;
     }
 }
-
-#endif
 
 /*
  * I740GetRec and I740FreeRec --
