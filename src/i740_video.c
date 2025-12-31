@@ -904,7 +904,7 @@ I740QueryImageAttributes(ScrnInfoPtr pScrn, int id, unsigned short *w,
 }
 
 static void
-I740BlockHandler(BLOCKHANDLER_ARGS_DECL)
+I740BlockHandler(ScreenPtr pScreen, pointer pTimeout)
 {
     ScrnInfoPtr pScrn = xf86ScreenToScrn(pScreen);
     I740Ptr pI740 = I740PTR(pScrn);
@@ -913,9 +913,7 @@ I740BlockHandler(BLOCKHANDLER_ARGS_DECL)
     /*xf86DrvMsg(pScrn->scrnIndex, X_CONFIG, "I740BlockHandler entered\n"); *//* ### */
 
     pScreen->BlockHandler = pI740->BlockHandler;
-
-    (*pScreen->BlockHandler) (BLOCKHANDLER_ARGS);
-
+    pScreen->BlockHandler(pScreen, pTimeout);
     pScreen->BlockHandler = I740BlockHandler;
 
     if (pPriv->videoStatus & TIMER_MASK) {

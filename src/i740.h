@@ -43,7 +43,6 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include "xf86Cursor.h"
 
-#include "compat-api.h"
 /* Globals */
 /* Memory mapped register access macros */
 #define INREG8(addr)        *(volatile CARD8  *)(pI740->MMIOBase + (addr))
