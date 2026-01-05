@@ -194,8 +194,8 @@ static XF86ModuleVersionInfo i740VersRec = {
 
 _X_EXPORT XF86ModuleData i740ModuleData = { &i740VersRec, i740Setup, 0 };
 
-static pointer
-i740Setup(pointer module, pointer opts, int *errmaj, int *errmin)
+static void*
+i740Setup(void *module, void *opts, int *errmaj, int *errmin)
 {
     static Bool setupDone = FALSE;
 
@@ -214,7 +214,7 @@ i740Setup(pointer module, pointer opts, int *errmaj, int *errmin)
          * The return value must be non-NULL on success even though there
          * is no TearDownProc.
          */
-        return (pointer) 1;
+        return (void*) 1;
     }
     else {
         if (errmaj)

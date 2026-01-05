@@ -402,7 +402,7 @@ I740ClipVideo(BoxPtr dst, INT32 *x1, INT32 *x2, INT32 *y1, INT32 *y2,
 }
 
 static void
-I740StopVideo(ScrnInfoPtr pScrn, pointer data, Bool exit)
+I740StopVideo(ScrnInfoPtr pScrn, void *data, Bool exit)
 {
     I740PortPrivPtr pPriv = (I740PortPrivPtr) data;
 
@@ -431,7 +431,7 @@ I740StopVideo(ScrnInfoPtr pScrn, pointer data, Bool exit)
 
 static int
 I740SetPortAttribute(ScrnInfoPtr pScrn, Atom attribute,
-                     INT32 value, pointer data)
+                     INT32 value, void *data)
 {
     I740PortPrivPtr pPriv = (I740PortPrivPtr) data;
     I740Ptr pI740 = I740PTR(pScrn);
@@ -470,7 +470,7 @@ I740SetPortAttribute(ScrnInfoPtr pScrn, Atom attribute,
 
 static int
 I740GetPortAttribute(ScrnInfoPtr pScrn, Atom attribute,
-                     INT32 *value, pointer data)
+                     INT32 *value, void *data)
 {
     I740PortPrivPtr pPriv = (I740PortPrivPtr) data;
 
@@ -495,7 +495,7 @@ I740QueryBestSize(ScrnInfoPtr pScrn,
                   short vid_w, short vid_h,
                   short drw_w, short drw_h,
                   unsigned int *p_w, unsigned int *p_h,
-                  pointer data)
+                  void *data)
 {
     if (vid_w > (drw_w << 1))
         drw_w = vid_w >> 1;
@@ -690,7 +690,7 @@ I740PutImage(ScrnInfoPtr pScrn,
              short src_w, short src_h, short drw_w, short drw_h,
              int id, unsigned char *buf,
              short width, short height,
-             Bool sync, RegionPtr clipBoxes, pointer data,
+             Bool sync, RegionPtr clipBoxes, void *data,
              DrawablePtr pDraw)
 {
     ScreenPtr pScreen = pScrn->pScreen;
@@ -904,7 +904,7 @@ I740QueryImageAttributes(ScrnInfoPtr pScrn, int id, unsigned short *w,
 }
 
 static void
-I740BlockHandler(ScreenPtr pScreen, pointer pTimeout)
+I740BlockHandler(ScreenPtr pScreen, void *pTimeout)
 {
     ScrnInfoPtr pScrn = xf86ScreenToScrn(pScreen);
     I740Ptr pI740 = I740PTR(pScrn);
@@ -1002,7 +1002,7 @@ I740AllocateSurface(ScrnInfoPtr pScrn, int id,
     surface->id = id;
     surface->pitches[0] = pitch;
     surface->offsets[0] = linear->offset * pI740->cpp;
-    surface->devPrivate.ptr = (pointer) pPriv;
+    surface->devPrivate.ptr = (void*) pPriv;
 
     /*//memset(pI740->FbBase + surface->offsets[0],0,size); */
 
@@ -1268,7 +1268,7 @@ I740SetupImageVideo(ScreenPtr pScreen)
         (I740PortPrivPtr) ((unsigned char *) (&adapt[1]) +
                            sizeof(sizeof(DevUnion)));
 
-    adapt->pPortPrivates[0].ptr = (pointer) (pPriv);
+    adapt->pPortPrivates[0].ptr = (void*) (pPriv);
     adapt->pAttributes = i740vid_Attributes;
     adapt->nImages = NUM_IMAGES;
     adapt->nAttributes = NUM_ATTRIBUTES;
