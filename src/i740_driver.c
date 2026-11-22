@@ -130,6 +130,7 @@ static Bool I740UnmapMem(ScrnInfoPtr pScrn);
 #define I740_MAJOR_VERSION PACKAGE_VERSION_MAJOR
 #define I740_MINOR_VERSION PACKAGE_VERSION_MINOR
 #define I740_PATCHLEVEL PACKAGE_VERSION_PATCHLEVEL
+#define I740_VERSION_SUFFIX PACKAGE_VERSION_SUFFIX
 
 _X_EXPORT DriverRec I740 = {
     I740_VERSION,
@@ -193,6 +194,10 @@ static XF86ModuleVersionInfo i740VersRec = {
 };
 
 _X_EXPORT XF86ModuleData i740ModuleData = { &i740VersRec, i740Setup, 0 };
+
+#ifdef XF86_MODULE_VERSION_SUFFIX
+XF86_MODULE_VERSION_SUFFIX(i740, I740_VERSION_SUFFIX);
+#endif
 
 static void*
 i740Setup(void *module, void *opts, int *errmaj, int *errmin)
