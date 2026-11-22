@@ -1181,9 +1181,9 @@ static XF86ImageRec i740vid_Images[] = {
 #define NUM_ATTRIBUTES (sizeof(i740vid_Attributes) / sizeof(XF86AttributeRec))
 
 static XF86AttributeRec i740vid_Attributes[] = {
-    {XvSettable | XvGettable, 0, (1 << 24) - 1, "XV_COLORKEY"},
-    {XvSettable | XvGettable, -128, 127, "XV_BRIGHTNESS"},
-    {XvSettable | XvGettable, 0, 255, "XV_CONTRAST"}
+    {XvSettable | XvGettable, 0, (1 << 24) - 1, (char *) "XV_COLORKEY"},
+    {XvSettable | XvGettable, -128, 127, (char *) "XV_BRIGHTNESS"},
+    {XvSettable | XvGettable, 0, 255, (char *) "XV_CONTRAST"}
 };
 
 static void
